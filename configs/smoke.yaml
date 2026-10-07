@@ -1,0 +1,37 @@
+# Laptop smoke test: synthetic Yelp-format data, hashing embeddings, 2 shards x 2 replicas.
+# Runs end to end in a few minutes; numbers from it are NOT results.
+name: smoke
+seed: 0
+work_dir: work/smoke
+data:
+  source: synthetic
+  n_synthetic: 1500
+  raw_dir: work/smoke/raw
+embedding:
+  model: hashing
+  dim: 384
+index:
+  shards: 2
+  replicas: 2
+  segment_docs: 20000
+  max_segments: 2
+  threads: 4
+serving:
+  shard_base_port: 7101
+  suggest_port: 7099
+  gateway_port: 8090
+  shard_threads: 32        # >= gateway_workers x broker.conns_per_shard + admin headroom
+  filter_cache_mb: 64
+  postings_cache_mb: 64
+broker:
+  conns_per_shard: 16
+  rerank_depth: 60
+  facet_depth: 60
+ranking:
+  train_queries: 300
+labels:
+  history_sessions: 5000
+  label_sessions: 10000
+loadtest:
+  qps: [20, 50]
+  duration_s: 10

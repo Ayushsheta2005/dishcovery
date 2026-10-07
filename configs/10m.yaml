@@ -1,0 +1,17 @@
+# 10M-document scale point: the Yelp corpus cloned into shifted synthetic metros up to 10M docs.
+# Plan for ~64 GB RAM, 16+ cores and a GPU for embeddings (or switch to hashing for latency-only runs).
+extends: yelp.yaml
+name: scale_10m
+work_dir: work/10m
+data:
+  base_docs: work/yelp/corpus/docs.base.jsonl   # reuse the yelp build; rebuilt from scratch if absent
+  target_docs: 10000000
+index:
+  shards: 8
+  replicas: 2
+  segment_docs: 500000
+  max_segments: 4
+serving:
+  shard_threads: 160
+broker:
+  bm25_k: 1000

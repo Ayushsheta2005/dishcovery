@@ -1,0 +1,46 @@
+# Full Yelp Open Dataset (+ optional OSM), MiniLM embeddings. ~60K food businesses -> ~2M docs.
+# Download the dataset from https://www.yelp.com/dataset into data/raw/yelp/ first.
+name: yelp
+seed: 0
+work_dir: work/yelp
+data:
+  source: yelp
+  raw_dir: data/raw/yelp
+  osm_path: null            # set to data/raw/osm/pois.jsonl after `dishcovery data osm`
+  workers: null             # all cores for review aggregation
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+  dim: 384
+  batch_size: 1024
+  device: null              # "cuda" on a GPU box
+index:
+  shards: 4
+  replicas: 2
+  segment_docs: 250000
+  max_segments: 4
+  threads: null
+  hnsw_m: 16
+  hnsw_efc: 200
+serving:
+  shard_base_port: 7101
+  gateway_port: 8080
+  shard_threads: 160        # >= gateway_workers (8) x broker.conns_per_shard (16) + headroom
+  gateway_workers: 8         # SO_REUSEPORT worker processes (Linux)
+  filter_cache_mb: 512
+  postings_cache_mb: 512
+broker:
+  conns_per_shard: 16
+  bm25_k: 1000
+  vector_k: 300
+  geo_k: 300
+  rerank_depth: 100
+ranking:
+  backend: lightgbm
+  train_queries: 4000
+  label_source: weak
+labels:
+  history_sessions: 200000
+  label_sessions: 400000
+loadtest:
+  qps: [50, 100, 200, 400, 800]
+  duration_s: 60

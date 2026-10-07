@@ -1,0 +1,10 @@
+# 1M-document scale point: the Yelp corpus subsampled (whole restaurants) to 1M docs.
+extends: yelp.yaml
+name: scale_1m
+work_dir: work/1m
+data:
+  base_docs: work/yelp/corpus/docs.base.jsonl   # reuse the yelp build; rebuilt from scratch if absent
+  target_docs: 1000000
+index:
+  shards: 4
+  replicas: 2

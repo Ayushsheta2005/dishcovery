@@ -1,0 +1,216 @@
+# Curated synonym groups for query expansion.
+#
+# Each group is {terms: [...], weight: 0.0-1.0 (default 1.0), type: ...}.
+#   * Every term in a group expands to every other term of the group with the
+#     group's weight (multiplied by QUConfig.synonym_weight at query time).
+#   * Terms are normalised with dishcovery.qu.text.normalize, so "mac & cheese"
+#     and "Mac 'n' Cheese" are fine; multi-word terms are allowed.
+#   * Expansion is NOT transitive across groups. Near-synonyms (e.g. naan vs
+#     kulcha) live in their own lower-weight group rather than being merged
+#     into an exact-synonym group.
+#   * type: ingredient | dish | cuisine | drink | general. Terms of
+#     ingredient groups are also registered as ingredient entities in the
+#     lexicon gazetteer and are never spell-"corrected".
+
+# ---------------------------------------------------------------- Indian <-> English
+- {type: ingredient, terms: [brinjal, eggplant, baingan, aubergine, begun, vankaya]}
+- {type: dish, terms: [roti, chapati, chapathi, chappati, phulka, fulka]}
+- {type: ingredient, terms: [curd, yogurt, yoghurt, dahi, thayir]}
+- {type: ingredient, weight: 0.8, terms: [paneer, panir, cottage cheese, indian cottage cheese]}
+- {type: ingredient, terms: [chickpea, chickpeas, chana, channa, chole, chhole, garbanzo, garbanzo beans, kabuli chana]}
+- {type: dish, weight: 0.9, terms: [chana masala, channa masala, chole masala, chole, chickpea curry]}
+- {type: ingredient, terms: [coriander, cilantro, dhania, dhaniya, coriander leaves]}
+- {type: ingredient, terms: [okra, bhindi, ladies finger, ladyfinger, lady finger, bamia, gumbo pods]}
+- {type: ingredient, terms: [potato, potatoes, aloo, alu, batata]}
+- {type: ingredient, terms: [cauliflower, gobi, gobhi, phool gobi]}
+- {type: ingredient, weight: 0.9, terms: [cabbage, patta gobi, band gobhi, bandh gobi]}
+- {type: ingredient, terms: [spinach, palak, paalak]}
+- {type: dish, weight: 0.7, terms: [saag, palak]}
+- {type: ingredient, terms: [lentil, lentils, dal, daal, dhal, dhall]}
+- {type: ingredient, terms: [prawn, prawns, shrimp, shrimps, jhinga, jheenga, chingri]}
+- {type: ingredient, weight: 0.9, terms: [mutton, goat, goat meat]}
+- {type: ingredient, weight: 0.6, terms: [lamb, mutton]}
+- {type: ingredient, terms: [peas, green peas, matar, mattar, mutter]}
+- {type: ingredient, terms: [fenugreek, methi, kasuri methi]}
+- {type: drink, terms: [buttermilk, chaas, chhaas, chaach, majjige]}
+- {type: dish, terms: [naan, nan]}
+- {type: dish, weight: 0.5, terms: [naan, kulcha]}
+- {type: dish, weight: 0.4, terms: [flatbread, naan, roti, paratha]}
+- {type: dish, terms: [paratha, parotta, parantha, porotta, prantha]}
+- {type: ingredient, terms: [ghee, clarified butter]}
+- {type: ingredient, terms: [jaggery, gur]}
+- {type: ingredient, terms: [tamarind, imli, puli]}
+- {type: ingredient, terms: [turmeric, haldi]}
+- {type: ingredient, terms: [cumin, jeera, zeera]}
+- {type: ingredient, terms: [mustard greens, sarson]}
+- {type: ingredient, terms: [bottle gourd, lauki, dudhi, ghiya, calabash]}
+- {type: ingredient, terms: [bitter gourd, karela, bitter melon]}
+- {type: ingredient, terms: [ginger, adrak]}
+- {type: ingredient, terms: [garlic, lehsun, lahsun]}
+- {type: ingredient, terms: [onion, onions, pyaz, pyaaz, kanda]}
+- {type: ingredient, terms: [tomato, tomatoes, tamatar]}
+- {type: ingredient, terms: [kidney beans, rajma, red kidney beans]}
+- {type: ingredient, terms: [black lentils, urad dal, urad, black gram]}
+- {type: ingredient, weight: 0.8, terms: [rice, chawal, chaawal]}
+- {type: ingredient, weight: 0.9, terms: [chicken, murgh, murg, kozhi]}
+- {type: ingredient, weight: 0.9, terms: [fish, machli, machhi, meen]}
+- {type: ingredient, terms: [egg, eggs, anda, ande, mutta]}
+- {type: dish, weight: 0.8, terms: [pakora, pakoda, pakoras, bhaji, bhajji, bajji, fritters]}
+- {type: dish, terms: [samosa, samosas, samoosa, sambusa]}
+- {type: dish, terms: [dosa, dosai, thosai, dosas]}
+- {type: dish, terms: [idli, idly, idlis]}
+- {type: dish, terms: [vada, wada, vadai, medu vada]}
+- {type: dish, terms: [sambar, sambhar, saambar]}
+- {type: dish, terms: [biryani, biriyani, briyani, biriani, beriani, biryanis, briyani rice]}
+- {type: dish, weight: 0.9, terms: [pulao, pulav, pilaf, pilau, pilaw, pilav]}
+- {type: dish, weight: 0.8, terms: [kheer, payasam, payesh, rice pudding]}
+- {type: dish, terms: [gulab jamun, gulab jaman, gulabjamun, gulab jamon]}
+- {type: dish, terms: [butter chicken, murgh makhani, chicken makhani]}
+- {type: dish, terms: [dal makhani, daal makhani, dal makhni]}
+- {type: dish, terms: [aloo gobi, aloo gobhi, alu gobi, potato cauliflower curry]}
+- {type: dish, weight: 0.8, terms: [palak paneer, saag paneer]}
+- {type: dish, terms: [baingan bharta, baingan ka bharta, brinjal bharta, eggplant bharta, bharta]}
+- {type: dish, terms: [curd rice, yogurt rice, thayir sadam, thayir sadham, dahi chawal, mosaranna]}
+- {type: dish, terms: [korma, kurma, qorma]}
+- {type: dish, terms: [kofta, kofte, kafta, kufta]}
+- {type: dish, terms: [halwa, halva, halvah, halawa]}
+- {type: dish, terms: [rasmalai, ras malai]}
+- {type: dish, terms: [falooda, faluda]}
+- {type: drink, terms: [chai, masala chai, chai tea]}
+- {type: ingredient, weight: 0.8, terms: [mince, minced meat, ground meat, keema, kheema, qeema]}
+- {type: dish, weight: 0.9, terms: [tandoori, tandoor]}
+
+# ---------------------------------------------------------------- British <-> American
+- {type: ingredient, terms: [courgette, zucchini]}
+- {type: ingredient, terms: [capsicum, bell pepper, bell peppers, sweet pepper, shimla mirch]}
+- {type: dish, terms: [fries, french fries, finger chips, frites]}
+- {type: dish, weight: 0.6, terms: [chips, fries]}
+- {type: dish, terms: [crisps, potato chips]}
+- {type: dish, weight: 0.5, terms: [crisps, chips]}
+- {type: dish, weight: 0.6, terms: [biscuit, biscuits, cookie, cookies]}
+- {type: ingredient, weight: 0.8, terms: [mince, ground beef, minced beef]}
+- {type: ingredient, terms: [spring onion, spring onions, scallion, scallions, green onion, green onions]}
+- {type: ingredient, terms: [rocket, arugula, roquette, rucola]}
+- {type: ingredient, terms: [cornstarch, cornflour, corn starch]}
+- {type: dish, weight: 0.6, terms: [candy, sweets]}
+- {type: drink, weight: 0.8, terms: [soda, soft drink, soft drinks, fizzy drink]}
+- {type: dish, terms: [fish and chips, fish n chips, fish chips, fish fry and chips]}
+- {type: dish, weight: 0.5, terms: [dessert, desserts, sweets, pudding]}
+
+# ---------------------------------------------------------------- American spelling / naming variants
+- {type: dish, terms: [donut, doughnut, donuts, doughnuts]}
+- {type: dish, terms: [mac and cheese, mac n cheese, macaroni and cheese, macaroni cheese, mac cheese, macaroni n cheese]}
+- {type: cuisine, terms: [bbq, barbecue, barbeque, bar b q, barbq, b b q, bar b que]}
+- {type: general, terms: [veggie, vegetable, veggies, vegetables]}
+- {type: dish, weight: 0.9, terms: [burger, burgers, hamburger, hamburgers]}
+- {type: dish, weight: 0.8, terms: [hot dog, hotdog, hot dogs, frankfurter, wiener]}
+- {type: dish, weight: 0.8, terms: [sub, subs, hoagie, hoagies, hero, submarine sandwich, grinder]}
+- {type: dish, terms: [cheesesteak, cheese steak, philly cheesesteak, philly cheese steak, cheesesteaks]}
+- {type: dish, terms: [eggplant parm, eggplant parmesan, eggplant parmigiana, melanzane alla parmigiana]}
+- {type: dish, terms: [chicken parm, chicken parmesan, chicken parmigiana]}
+- {type: dish, terms: [omelette, omelet, omlette, omlet]}
+- {type: dish, weight: 0.8, terms: [pancake, pancakes, hotcakes, flapjacks]}
+- {type: dish, weight: 0.9, terms: [wings, chicken wings, buffalo wings, hot wings]}
+- {type: drink, terms: [cappuccino, capuccino, cappucino, capuchino]}
+- {type: drink, terms: [latte, cafe latte, caffe latte]}
+- {type: drink, terms: [boba, bubble tea, boba tea, pearl milk tea, tapioca tea]}
+- {type: drink, terms: [milkshake, milk shake, shake, shakes]}
+- {type: dish, terms: [ice cream, icecream]}
+- {type: dish, weight: 0.6, terms: [ice cream, gelato]}
+- {type: dish, weight: 0.5, terms: [kulfi, ice cream]}
+- {type: dish, terms: [poke, poke bowl]}
+- {type: ingredient, terms: [crawfish, crayfish, crawdads, mudbugs]}
+- {type: dish, terms: [po boy, po boys, poboy, poor boy]}
+- {type: dish, terms: [beignet, beignets]}
+- {type: ingredient, weight: 0.9, terms: [calamari, squid]}
+- {type: dish, weight: 0.9, terms: [margherita, margarita]}
+- {type: dish, weight: 0.8, terms: [margherita pizza, cheese pizza, pizza margherita]}
+- {type: dish, terms: [sandwich, sandwiches, sammich]}
+- {type: dish, terms: [jalapeno poppers, jalapeno popper, poppers]}
+
+# ---------------------------------------------------------------- Spanish / Mexican / Latin
+- {type: ingredient, terms: [chili, chilli, chile, chilies, chillies, chiles, chilis]}
+- {type: ingredient, terms: [jalapeno, jalapenos, jalepeno, jalapeño]}
+- {type: dish, terms: [guacamole, guac]}
+- {type: dish, terms: [pico de gallo, salsa fresca, pico]}
+- {type: dish, terms: [elote, mexican street corn, street corn]}
+- {type: dish, terms: [churro, churros]}
+- {type: dish, terms: [enchilada, enchiladas]}
+- {type: dish, terms: [tamale, tamales, tamal]}
+- {type: dish, terms: [empanada, empanadas, empanadillas]}
+- {type: dish, terms: [quesadilla, quesadillas, quesadia]}
+- {type: dish, terms: [taco, tacos]}
+- {type: dish, terms: [burrito, burritos, burito]}
+- {type: dish, weight: 0.8, terms: [carnitas, pulled pork]}
+- {type: dish, terms: [al pastor, tacos al pastor]}
+- {type: dish, terms: [horchata, orxata]}
+- {type: ingredient, terms: [avocado, aguacate, avo]}
+- {type: dish, weight: 0.8, terms: [nachos, nacho, loaded nachos]}
+
+# ---------------------------------------------------------------- Middle-Eastern / Mediterranean
+- {type: dish, terms: [kebab, kabab, kabob, kebob, kebap, kabap, kababs, kebabs, kabobs]}
+- {type: dish, terms: [seekh kebab, seekh kabab, sheekh kebab, seekh kabob, sheek kebab]}
+- {type: dish, terms: [shawarma, shwarma, shawerma, schawarma, shoarma, shawarmah, shawirma]}
+- {type: dish, terms: [gyro, gyros, yiros, giro]}
+- {type: dish, terms: [doner, doner kebab, donair]}
+- {type: dish, weight: 0.6, terms: [shawarma, gyro, doner]}
+- {type: dish, terms: [hummus, houmous, hummous, humus, hommus, houmus]}
+- {type: dish, terms: [falafel, felafel, falafal, filafil]}
+- {type: ingredient, terms: [tahini, tahina, tehina]}
+- {type: dish, terms: [baba ganoush, baba ghanoush, baba ghanouj, baba ganouj, baba ganoush dip]}
+- {type: dish, terms: [tabbouleh, tabouli, tabouleh, tabbouli, tabule]}
+- {type: dish, terms: [pita, pitta, pita bread, pitta bread]}
+- {type: dish, terms: [baklava, baklawa, baclava]}
+- {type: dish, terms: [shakshuka, shakshouka, chakchouka]}
+- {type: dish, terms: [fattoush, fatoush]}
+- {type: dish, terms: [kibbeh, kibbe, kubba]}
+- {type: dish, terms: [labneh, labne, labaneh]}
+
+# ---------------------------------------------------------------- Chinese
+- {type: cuisine, terms: [szechuan, sichuan, schezwan, szechwan, schezuan, shezwan, sezchuan]}
+- {type: dish, terms: [chow mein, chowmein, chow mien]}
+- {type: dish, terms: [lo mein, lomein, lo mien]}
+- {type: dish, weight: 0.5, terms: [chow mein, lo mein, hakka noodles]}
+- {type: dish, terms: [manchurian, manchoorian, machurian]}
+- {type: dish, terms: [kung pao, kung po, gong bao, kung pow]}
+- {type: dish, terms: [general tso, general tsos, general tsao, general gau, general chicken]}
+- {type: ingredient, terms: [bok choy, pak choi, bok choi, pak choy]}
+- {type: dish, terms: [wonton, wontons, won ton, wanton, wantan]}
+- {type: dish, weight: 0.6, terms: [spring roll, spring rolls, egg roll, egg rolls]}
+- {type: dish, terms: [dim sum, dimsum]}
+- {type: ingredient, terms: [tofu, bean curd, beancurd, doufu]}
+- {type: dish, terms: [mapo tofu, mapo doufu, ma po tofu]}
+- {type: dish, terms: [hot pot, hotpot, huo guo]}
+- {type: dish, terms: [xiao long bao, xiaolongbao, soup dumplings, soup dumpling, xlb]}
+- {type: dish, terms: [bao, bao bun, bao buns, steamed bun, steamed buns, baozi]}
+- {type: dish, weight: 0.7, terms: [char siu, char siew, chashu, bbq pork]}
+- {type: dish, terms: [dumpling, dumplings]}
+- {type: dish, terms: [momo, momos]}
+- {type: dish, weight: 0.9, terms: [gyoza, potsticker, potstickers, pot stickers]}
+- {type: dish, weight: 0.8, terms: [jiaozi, dumplings]}
+- {type: dish, weight: 0.6, terms: [dumplings, momo, gyoza, jiaozi, potstickers, mandu]}
+- {type: dish, terms: [congee, jook, juk, rice porridge, kanji]}
+
+# ---------------------------------------------------------------- Japanese / Korean / SE Asian
+- {type: dish, weight: 0.6, terms: [ramen, ramyun, ramyeon]}
+- {type: dish, terms: [udon, udon noodles]}
+- {type: dish, terms: [soba, soba noodles]}
+- {type: dish, weight: 0.7, terms: [edamame, soybeans, soy beans]}
+- {type: drink, weight: 0.7, terms: [matcha, green tea]}
+- {type: dish, terms: [katsu, tonkatsu, cutlet]}
+- {type: dish, terms: [onigiri, rice ball, rice balls, omusubi]}
+- {type: dish, terms: [kimchi, kimchee, gimchi]}
+- {type: dish, terms: [bibimbap, bi bim bap, bibimbab]}
+- {type: dish, terms: [bulgogi, bulgolgi, pulgogi]}
+- {type: dish, terms: [tteokbokki, ddukbokki, topokki, tteok bokki]}
+- {type: dish, terms: [pho, vietnamese noodle soup, pho bo]}
+- {type: dish, terms: [banh mi, banhmi, vietnamese sandwich]}
+- {type: dish, terms: [pad thai, phad thai, padthai]}
+- {type: dish, terms: [tom yum, tom yam, tomyum]}
+- {type: dish, terms: [tom kha, tom kha gai, tom ka]}
+- {type: dish, terms: [pad see ew, pad siew, phat si io]}
+- {type: dish, terms: [satay, sate, saté]}
+- {type: dish, terms: [laksa, curry laksa]}
+- {type: dish, terms: [nasi goreng, indonesian fried rice]}
+- {type: dish, terms: [larb, laab, laap]}
+- {type: dish, terms: [noodles, noodle]}

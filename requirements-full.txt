@@ -1,0 +1,5 @@
+-r requirements.txt
+lightgbm>=4.0               # LambdaMART (falls back to the numpy implementation if missing)
+sentence-transformers>=2.2  # all-MiniLM-L6-v2 embeddings (GPU strongly recommended for 10M docs)
+torch>=2.0
+uvloop>=0.17

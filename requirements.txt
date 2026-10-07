@@ -1,0 +1,10 @@
+# Core (laptop smoke tests). For the full experiments: pip install -r requirements-full.txt
+numpy>=1.22
+scipy>=1.8
+scikit-learn>=1.0
+pyyaml>=6
+orjson>=3.8
+aiohttp>=3.8
+h3>=4.0
+matplotlib>=3.5
+pytest>=7

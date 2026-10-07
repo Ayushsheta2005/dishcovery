@@ -1,0 +1,125 @@
+{
+  "text_fields": [
+    {
+      "name": "name",
+      "analyzer": "minimal",
+      "weight": 3.0,
+      "positions": true
+    },
+    {
+      "name": "name_exact",
+      "source": "name",
+      "analyzer": "plain",
+      "weight": 0.0,
+      "positions": true
+    },
+    {
+      "name": "restaurant_name",
+      "analyzer": "minimal",
+      "weight": 1.5,
+      "positions": true
+    },
+    {
+      "name": "cuisines",
+      "analyzer": "standard",
+      "weight": 2.0
+    },
+    {
+      "name": "categories",
+      "analyzer": "standard",
+      "weight": 1.0
+    },
+    {
+      "name": "tags",
+      "analyzer": "standard",
+      "weight": 1.2
+    },
+    {
+      "name": "description",
+      "analyzer": "standard",
+      "weight": 0.8,
+      "positions": true
+    },
+    {
+      "name": "reviews",
+      "analyzer": "standard",
+      "weight": 0.4
+    }
+  ],
+  "keyword_fields": [
+    {
+      "name": "type"
+    },
+    {
+      "name": "diet"
+    },
+    {
+      "name": "price_tier"
+    },
+    {
+      "name": "cuisine",
+      "source": "cuisines"
+    },
+    {
+      "name": "chain"
+    },
+    {
+      "name": "city"
+    },
+    {
+      "name": "canonical_dish"
+    }
+  ],
+  "numeric_fields": [
+    {
+      "name": "rating"
+    },
+    {
+      "name": "review_count"
+    },
+    {
+      "name": "price"
+    },
+    {
+      "name": "price_tier"
+    },
+    {
+      "name": "popularity"
+    },
+    {
+      "name": "prep_time_min",
+      "default": 20
+    },
+    {
+      "name": "delivery_radius_km",
+      "default": 5
+    }
+  ],
+  "stored_fields": [
+    "id",
+    "type",
+    "name",
+    "restaurant_name",
+    "restaurant_id",
+    "chain",
+    "canonical_dish",
+    "cuisines",
+    "diet",
+    "price",
+    "price_tier",
+    "rating",
+    "review_count",
+    "city",
+    "lat",
+    "lon"
+  ],
+  "vector_dim": 384,
+  "geo": {
+    "cover_res": 7,
+    "point_res": 8
+  },
+  "bm25": {
+    "k1": 1.2,
+    "b": 0.75
+  }
+}

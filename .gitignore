@@ -1,0 +1,27 @@
+# build outputs
+build/
+build-*/
+cmake-build-*/
+compile_commands.json
+
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+# data & experiment outputs (regenerable; never commit the Yelp dataset — its license forbids redistribution)
+work/
+data/raw/
+*.f32
+*.idx.npy
+
+# hand labels ARE committed (data/eval/hand_labels.jsonl); pools are regenerable
+data/eval/pool.jsonl
+data/eval/pool.csv
+
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,613 @@
+# Dish taxonomy used to generate synthetic menus and to seed query understanding.
+#
+# cuisines.<key>:
+#   aliases:          query phrasings that mean this cuisine
+#   yelp_categories:  Yelp category strings that map a business to this cuisine
+#   dishes: one flow mapping per dish:
+#     name      canonical dish name (normalised, lower case)
+#     variants  alternative names/spellings seen on menus and in queries
+#     diet      veg | vegan | non_veg | egg          (vegan dishes are also veg)
+#     meal      meal-time profile (see meal_profiles) or an explicit
+#               {breakfast, lunch, snack, dinner, late_night} distribution
+#     price     [low, high] USD at price tier 2
+#     prep      minutes
+#     tags      descriptors/ingredients (feed BM25, embeddings and vague queries)
+#     gf        true if typically gluten free
+#
+# Descriptions are generated from tags by dishcovery/data/menus.py.
+
+meal_profiles:
+  main:      {lunch: 0.45, dinner: 0.45, late_night: 0.05, snack: 0.05}
+  lunch:     {lunch: 0.6, dinner: 0.3, snack: 0.1}
+  dinner:    {dinner: 0.65, lunch: 0.25, late_night: 0.1}
+  breakfast: {breakfast: 0.8, lunch: 0.15, snack: 0.05}
+  brunch:    {breakfast: 0.5, lunch: 0.4, snack: 0.1}
+  snack:     {snack: 0.5, lunch: 0.2, dinner: 0.15, late_night: 0.15}
+  dessert:   {snack: 0.45, dinner: 0.35, lunch: 0.1, late_night: 0.1}
+  drink:     {breakfast: 0.25, snack: 0.35, lunch: 0.2, dinner: 0.1, late_night: 0.1}
+  late:      {dinner: 0.4, late_night: 0.4, snack: 0.2}
+  side:      {lunch: 0.4, dinner: 0.45, snack: 0.1, late_night: 0.05}
+
+generic_dishes:
+  - {name: french fries, variants: [fries, chips], diet: vegan, meal: side, price: [3, 5], prep: 8, tags: [potato, fried, crispy, side], gf: true}
+  - {name: soft drink, variants: [soda, coke, pop], diet: vegan, meal: drink, price: [2, 3], prep: 1, tags: [drink, cold], gf: true}
+  - {name: bottled water, variants: [water], diet: vegan, meal: drink, price: [1, 2], prep: 1, tags: [drink], gf: true}
+  - {name: side salad, variants: [house salad, garden salad], diet: vegan, meal: side, price: [4, 7], prep: 5, tags: [salad, healthy, light, fresh], gf: true}
+  - {name: iced tea, variants: [sweet tea], diet: vegan, meal: drink, price: [2, 4], prep: 2, tags: [drink, cold], gf: true}
+
+cuisines:
+  indian:
+    aliases: [indian, north indian, south indian, desi, indian food, punjabi, hyderabadi]
+    yelp_categories: [Indian, Bangladeshi, Sri Lankan]
+    dishes:
+      - {name: chicken biryani, variants: [chicken dum biryani, hyderabadi chicken biryani, chicken biriyani, chicken briyani], diet: non_veg, meal: main, price: [11, 17], prep: 25, tags: [rice, spicy, aromatic, basmati, chicken], gf: true}
+      - {name: mutton biryani, variants: [goat biryani, lamb biryani, gosht biryani, mutton dum biryani], diet: non_veg, meal: main, price: [14, 20], prep: 30, tags: [rice, spicy, aromatic, goat], gf: true}
+      - {name: veg biryani, variants: [vegetable biryani, veg dum biryani, subz biryani], diet: veg, meal: main, price: [10, 14], prep: 25, tags: [rice, vegetables, aromatic], gf: true}
+      - {name: egg biryani, variants: [anda biryani], diet: egg, meal: main, price: [10, 14], prep: 25, tags: [rice, egg, spicy], gf: true}
+      - {name: lucknowi biryani, variants: [awadhi biryani], diet: non_veg, meal: main, price: [13, 19], prep: 30, tags: [rice, mild, aromatic, chicken], gf: true}
+      - {name: butter chicken, variants: [murgh makhani, chicken makhani], diet: non_veg, meal: main, price: [13, 18], prep: 20, tags: [curry, creamy, tomato, chicken, comfort], gf: true}
+      - {name: chicken tikka masala, variants: [tikka masala, ctm], diet: non_veg, meal: main, price: [13, 18], prep: 20, tags: [curry, creamy, spicy, chicken], gf: true}
+      - {name: chicken tikka, variants: [murgh tikka], diet: non_veg, meal: main, price: [11, 15], prep: 20, tags: [tandoori, grilled, chicken, smoky], gf: true}
+      - {name: tandoori chicken, variants: [tandoori murgh], diet: non_veg, meal: main, price: [13, 18], prep: 25, tags: [tandoori, grilled, chicken, smoky, spicy], gf: true}
+      - {name: chicken curry, variants: [murgh curry, home style chicken curry], diet: non_veg, meal: main, price: [12, 16], prep: 20, tags: [curry, spicy, chicken, warm], gf: true}
+      - {name: chicken korma, variants: [murgh korma], diet: non_veg, meal: main, price: [13, 17], prep: 20, tags: [curry, creamy, mild, nuts, chicken], gf: true}
+      - {name: chicken vindaloo, variants: [vindaloo], diet: non_veg, meal: main, price: [13, 17], prep: 20, tags: [curry, very spicy, tangy, chicken], gf: true}
+      - {name: rogan josh, variants: [lamb rogan josh, mutton rogan josh], diet: non_veg, meal: main, price: [15, 20], prep: 25, tags: [curry, lamb, aromatic, spicy, warm], gf: true}
+      - {name: lamb vindaloo, variants: [goat vindaloo], diet: non_veg, meal: main, price: [15, 20], prep: 25, tags: [curry, very spicy, lamb], gf: true}
+      - {name: saag paneer, variants: [palak paneer, spinach paneer], diet: veg, meal: main, price: [12, 16], prep: 20, tags: [curry, spinach, paneer, creamy, healthy], gf: true}
+      - {name: paneer tikka masala, variants: [paneer masala], diet: veg, meal: main, price: [12, 16], prep: 20, tags: [curry, paneer, creamy, spicy], gf: true}
+      - {name: paneer tikka, variants: [paneer tikka kebab], diet: veg, meal: snack, price: [10, 14], prep: 20, tags: [tandoori, paneer, grilled, smoky], gf: true}
+      - {name: paneer butter masala, variants: [paneer makhani, butter paneer], diet: veg, meal: main, price: [12, 16], prep: 20, tags: [curry, paneer, creamy, tomato, comfort], gf: true}
+      - {name: kadai paneer, variants: [kadhai paneer, karahi paneer], diet: veg, meal: main, price: [12, 16], prep: 20, tags: [curry, paneer, peppers, spicy], gf: true}
+      - {name: malai kofta, variants: [kofta curry], diet: veg, meal: main, price: [12, 16], prep: 25, tags: [curry, creamy, dumplings, rich], gf: false}
+      - {name: baingan bharta, variants: [baingan ka bharta, eggplant bharta, roasted eggplant curry, begun bharta], diet: vegan, meal: main, price: [11, 15], prep: 25, tags: [eggplant, smoky, spicy, mashed], gf: true}
+      - {name: aloo gobi, variants: [aloo gobhi, potato cauliflower curry], diet: vegan, meal: main, price: [10, 14], prep: 20, tags: [potato, cauliflower, dry curry, turmeric], gf: true}
+      - {name: chana masala, variants: [chole masala, channa masala, chickpea curry], diet: vegan, meal: main, price: [10, 14], prep: 20, tags: [chickpeas, curry, spicy, tangy, healthy], gf: true}
+      - {name: chole bhature, variants: [chole bhatura, chana bhatura], diet: veg, meal: brunch, price: [10, 14], prep: 20, tags: [chickpeas, fried bread, spicy, street food], gf: false}
+      - {name: dal makhani, variants: [dal makhni, maa ki dal, black lentil dal], diet: veg, meal: main, price: [10, 14], prep: 20, tags: [lentils, creamy, buttery, comfort, warm], gf: true}
+      - {name: dal tadka, variants: [yellow dal, tadka dal, dal fry], diet: vegan, meal: main, price: [9, 12], prep: 15, tags: [lentils, tempered, comfort, warm, healthy], gf: true}
+      - {name: rajma chawal, variants: [rajma, kidney bean curry], diet: vegan, meal: lunch, price: [10, 13], prep: 15, tags: [kidney beans, rice, comfort, warm], gf: true}
+      - {name: bhindi masala, variants: [okra masala, bhindi fry], diet: vegan, meal: main, price: [10, 14], prep: 20, tags: [okra, dry curry, spicy], gf: true}
+      - {name: mixed vegetable curry, variants: [mix veg, navratan korma], diet: veg, meal: main, price: [10, 14], prep: 20, tags: [vegetables, curry, mild], gf: true}
+      - {name: garlic naan, variants: [garlic nan, lasooni naan], diet: veg, meal: side, price: [3, 5], prep: 8, tags: [bread, garlic, tandoor], gf: false}
+      - {name: butter naan, variants: [naan, plain naan], diet: veg, meal: side, price: [2, 4], prep: 8, tags: [bread, tandoor, buttery], gf: false}
+      - {name: cheese naan, variants: [cheese nan], diet: veg, meal: side, price: [4, 6], prep: 8, tags: [bread, cheese, tandoor], gf: false}
+      - {name: tandoori roti, variants: [roti, chapati, phulka], diet: vegan, meal: side, price: [2, 4], prep: 5, tags: [bread, whole wheat], gf: false}
+      - {name: aloo paratha, variants: [aloo parantha, potato paratha], diet: veg, meal: breakfast, price: [6, 9], prep: 15, tags: [bread, potato, stuffed, buttery], gf: false}
+      - {name: samosa, variants: [samosas, aloo samosa, veg samosa], diet: vegan, meal: snack, price: [4, 7], prep: 10, tags: [fried, potato, peas, crispy, snack], gf: false}
+      - {name: onion bhaji, variants: [onion pakora, kanda bhaji], diet: vegan, meal: snack, price: [5, 7], prep: 10, tags: [fried, onion, crispy, snack], gf: true}
+      - {name: vegetable pakora, variants: [pakoras, mix veg pakora], diet: vegan, meal: snack, price: [5, 8], prep: 10, tags: [fried, vegetables, crispy, snack], gf: true}
+      - {name: pani puri, variants: [golgappa, gol gappe, puchka], diet: vegan, meal: snack, price: [5, 8], prep: 10, tags: [street food, tangy, crispy, spicy], gf: false}
+      - {name: bhel puri, variants: [bhelpuri], diet: vegan, meal: snack, price: [5, 8], prep: 8, tags: [street food, tangy, crunchy, light], gf: false}
+      - {name: pav bhaji, variants: [paav bhaji], diet: veg, meal: snack, price: [8, 11], prep: 15, tags: [street food, buttery, vegetables, spicy], gf: false}
+      - {name: vada pav, variants: [wada pav, vada pao], diet: vegan, meal: snack, price: [5, 7], prep: 10, tags: [street food, potato, fried, spicy], gf: false}
+      - {name: masala dosa, variants: [dosa, masala dosai], diet: vegan, meal: brunch, price: [9, 13], prep: 15, tags: [south indian, crispy, crepe, potato], gf: true}
+      - {name: mysore masala dosa, variants: [mysore dosa], diet: vegan, meal: brunch, price: [10, 14], prep: 15, tags: [south indian, crispy, spicy, crepe], gf: true}
+      - {name: idli sambar, variants: [idli, idly], diet: vegan, meal: breakfast, price: [6, 9], prep: 10, tags: [south indian, steamed, light, healthy, rice], gf: true}
+      - {name: medu vada, variants: [vada sambar, urad vada], diet: vegan, meal: breakfast, price: [6, 8], prep: 10, tags: [south indian, fried, lentils, crispy], gf: true}
+      - {name: uttapam, variants: [onion uttapam, uthappam], diet: vegan, meal: breakfast, price: [8, 11], prep: 15, tags: [south indian, pancake, onion], gf: true}
+      - {name: curd rice, variants: [thayir sadam, dahi chawal, yogurt rice], diet: veg, meal: lunch, price: [7, 10], prep: 10, tags: [rice, yogurt, cooling, light, comfort], gf: true}
+      - {name: lemon rice, variants: [chitranna], diet: vegan, meal: lunch, price: [7, 10], prep: 10, tags: [rice, tangy, light], gf: true}
+      - {name: jeera rice, variants: [cumin rice], diet: vegan, meal: side, price: [4, 6], prep: 10, tags: [rice, cumin], gf: true}
+      - {name: chicken 65, variants: [chicken sixty five], diet: non_veg, meal: snack, price: [10, 14], prep: 15, tags: [fried, spicy, chicken, crispy], gf: true}
+      - {name: fish curry, variants: [goan fish curry, kerala fish curry, machli curry], diet: non_veg, meal: main, price: [14, 19], prep: 25, tags: [curry, fish, coconut, spicy], gf: true}
+      - {name: prawn curry, variants: [shrimp curry, jhinga masala], diet: non_veg, meal: main, price: [15, 20], prep: 20, tags: [curry, shrimp, coconut, spicy], gf: true}
+      - {name: lamb seekh kebab, variants: [seekh kebab, seekh kabab, mutton seekh], diet: non_veg, meal: snack, price: [12, 16], prep: 20, tags: [kebab, grilled, lamb, smoky], gf: true}
+      - {name: mango lassi, variants: [lassi, sweet lassi], diet: veg, meal: drink, price: [4, 6], prep: 3, tags: [drink, yogurt, mango, sweet, cold], gf: true}
+      - {name: masala chai, variants: [chai, chai tea, cutting chai], diet: veg, meal: drink, price: [2, 4], prep: 5, tags: [drink, tea, spiced, warm], gf: true}
+      - {name: gulab jamun, variants: [gulaab jamun], diet: veg, meal: dessert, price: [4, 6], prep: 5, tags: [dessert, sweet, syrup, warm], gf: false}
+      - {name: rasmalai, variants: [ras malai], diet: veg, meal: dessert, price: [5, 7], prep: 5, tags: [dessert, sweet, milk, cold], gf: true}
+      - {name: gajar halwa, variants: [carrot halwa, gajar ka halwa], diet: veg, meal: dessert, price: [5, 7], prep: 5, tags: [dessert, sweet, carrot, warm], gf: true}
+      - {name: kheer, variants: [rice pudding, payasam], diet: veg, meal: dessert, price: [4, 6], prep: 5, tags: [dessert, sweet, rice, milk], gf: true}
+  pakistani:
+    aliases: [pakistani, pakistani food, karachi]
+    yelp_categories: [Pakistani]
+    dishes:
+      - {name: chicken karahi, variants: [karahi chicken, kadai chicken, chicken kadai], diet: non_veg, meal: main, price: [13, 18], prep: 25, tags: [curry, tomato, spicy, chicken], gf: true}
+      - {name: nihari, variants: [beef nihari, nalli nihari], diet: non_veg, meal: brunch, price: [14, 19], prep: 30, tags: [stew, beef, slow cooked, warm, rich], gf: true}
+      - {name: haleem, variants: [daleem], diet: non_veg, meal: main, price: [12, 16], prep: 30, tags: [stew, lentils, wheat, comfort, warm], gf: false}
+      - {name: chapli kebab, variants: [chapli kabab, peshawari kebab], diet: non_veg, meal: snack, price: [11, 15], prep: 20, tags: [kebab, beef, fried, spicy], gf: true}
+      - {name: sindhi biryani, variants: [karachi biryani], diet: non_veg, meal: main, price: [12, 17], prep: 25, tags: [rice, spicy, potato, chicken], gf: true}
+      - {name: aloo keema, variants: [keema aloo, keema], diet: non_veg, meal: main, price: [12, 16], prep: 20, tags: [minced meat, potato, curry], gf: true}
+      - {name: halwa puri, variants: [halwa poori], diet: veg, meal: breakfast, price: [9, 12], prep: 15, tags: [breakfast, fried bread, sweet, chickpeas], gf: false}
+      - {name: chicken tikka boti, variants: [tikka boti], diet: non_veg, meal: main, price: [12, 16], prep: 20, tags: [grilled, chicken, smoky, bbq], gf: true}
+      - {name: paya, variants: [siri paya, trotters curry], diet: non_veg, meal: brunch, price: [12, 16], prep: 30, tags: [stew, slow cooked, warm], gf: true}
+      - {name: shami kebab, variants: [shami kabab], diet: non_veg, meal: snack, price: [8, 12], prep: 15, tags: [kebab, lentils, minced meat], gf: true}
+  himalayan:
+    aliases: [nepalese, nepali, himalayan, tibetan]
+    yelp_categories: [Himalayan/Nepalese, Tibetan]
+    dishes:
+      - {name: chicken momo, variants: [chicken momos, momo, momos, steamed momo], diet: non_veg, meal: snack, price: [9, 13], prep: 20, tags: [dumplings, steamed, chicken], gf: false}
+      - {name: veg momo, variants: [veg momos, vegetable momo], diet: vegan, meal: snack, price: [8, 12], prep: 20, tags: [dumplings, steamed, vegetables], gf: false}
+      - {name: jhol momo, variants: [soup momo, jhol momos], diet: non_veg, meal: main, price: [10, 14], prep: 20, tags: [dumplings, soup, spicy, warm], gf: false}
+      - {name: fried momo, variants: [kothey momo, pan fried momo], diet: non_veg, meal: snack, price: [10, 14], prep: 20, tags: [dumplings, fried, crispy], gf: false}
+      - {name: thukpa, variants: [chicken thukpa, noodle soup], diet: non_veg, meal: main, price: [11, 15], prep: 20, tags: [noodles, soup, warm, comfort], gf: false}
+      - {name: chow mein nepali, variants: [nepali chowmein], diet: non_veg, meal: main, price: [10, 14], prep: 15, tags: [noodles, stir fry], gf: false}
+      - {name: dal bhat, variants: [dal bhat tarkari, nepali thali], diet: vegan, meal: lunch, price: [12, 16], prep: 20, tags: [lentils, rice, thali, healthy, comfort], gf: true}
+      - {name: sel roti, variants: [selroti], diet: vegan, meal: breakfast, price: [4, 6], prep: 10, tags: [fried, sweet, rice bread], gf: true}
+      - {name: chicken sekuwa, variants: [sekuwa], diet: non_veg, meal: main, price: [12, 16], prep: 20, tags: [grilled, chicken, smoky, spicy], gf: true}
+      - {name: aloo dum, variants: [alu dum], diet: vegan, meal: snack, price: [7, 10], prep: 15, tags: [potato, spicy, curry], gf: true}
+  chinese:
+    aliases: [chinese, chinese food, cantonese, szechuan, sichuan, schezwan]
+    yelp_categories: [Chinese, Cantonese, Szechuan, Dim Sum, Taiwanese, Hong Kong Style Cafe, Shanghainese, Hot Pot]
+    dishes:
+      - {name: general tso chicken, variants: [general tsos chicken, general tao chicken, general chicken], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [fried, sweet, spicy, chicken, crispy]}
+      - {name: orange chicken, variants: [orange peel chicken], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [fried, sweet, citrus, chicken]}
+      - {name: kung pao chicken, variants: [kung po chicken, gong bao chicken], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [stir fry, peanuts, spicy, chicken]}
+      - {name: sesame chicken, variants: [sesame seed chicken], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [fried, sweet, sesame, chicken]}
+      - {name: sweet and sour chicken, variants: [sweet n sour chicken, sweet sour chicken], diet: non_veg, meal: main, price: [10, 14], prep: 15, tags: [fried, sweet, tangy, chicken]}
+      - {name: beef and broccoli, variants: [broccoli beef, beef broccoli], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [stir fry, beef, broccoli, savory]}
+      - {name: mongolian beef, variants: [mongolian beef stir fry], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [stir fry, beef, sweet, scallion]}
+      - {name: mapo tofu, variants: [ma po tofu, mapo doufu], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [tofu, very spicy, sichuan, warm]}
+      - {name: dan dan noodles, variants: [dandan noodles, dan dan mian], diet: non_veg, meal: main, price: [10, 14], prep: 15, tags: [noodles, spicy, sichuan, sesame]}
+      - {name: chicken lo mein, variants: [lo mein, lomein], diet: non_veg, meal: main, price: [10, 14], prep: 15, tags: [noodles, stir fry, chicken]}
+      - {name: vegetable lo mein, variants: [veg lo mein], diet: vegan, meal: main, price: [9, 13], prep: 15, tags: [noodles, stir fry, vegetables]}
+      - {name: chicken chow mein, variants: [chow mein, chowmein], diet: non_veg, meal: main, price: [10, 14], prep: 15, tags: [noodles, stir fry, crispy, chicken]}
+      - {name: hakka noodles, variants: [veg hakka noodles, chilli garlic noodles], diet: vegan, meal: main, price: [9, 13], prep: 15, tags: [noodles, stir fry, indo chinese, spicy]}
+      - {name: egg fried rice, variants: [fried rice, egg rice], diet: egg, meal: main, price: [9, 12], prep: 12, tags: [rice, egg, stir fry, comfort]}
+      - {name: chicken fried rice, variants: [chicken rice], diet: non_veg, meal: main, price: [10, 13], prep: 12, tags: [rice, chicken, stir fry]}
+      - {name: schezwan fried rice, variants: [szechuan fried rice, sichuan fried rice], diet: egg, meal: main, price: [10, 13], prep: 12, tags: [rice, spicy, indo chinese]}
+      - {name: shrimp fried rice, variants: [prawn fried rice], diet: non_veg, meal: main, price: [11, 15], prep: 12, tags: [rice, shrimp, stir fry]}
+      - {name: wonton soup, variants: [won ton soup, wanton soup], diet: non_veg, meal: main, price: [6, 10], prep: 10, tags: [soup, dumplings, warm, light, comfort]}
+      - {name: hot and sour soup, variants: [hot n sour soup, hot sour soup], diet: non_veg, meal: main, price: [5, 8], prep: 10, tags: [soup, spicy, tangy, warm]}
+      - {name: egg drop soup, variants: [egg flower soup], diet: egg, meal: main, price: [4, 7], prep: 8, tags: [soup, egg, light, warm]}
+      - {name: spring rolls, variants: [spring roll, egg rolls, egg roll], diet: vegan, meal: snack, price: [4, 7], prep: 10, tags: [fried, crispy, vegetables, appetizer]}
+      - {name: pork dumplings, variants: [potstickers, pot stickers, jiaozi, gyoza], diet: non_veg, meal: snack, price: [7, 11], prep: 15, tags: [dumplings, pork, pan fried]}
+      - {name: xiao long bao, variants: [soup dumplings, xlb], diet: non_veg, meal: snack, price: [9, 13], prep: 20, tags: [dumplings, soup, pork, steamed]}
+      - {name: char siu, variants: [bbq pork, chinese bbq pork], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [pork, roasted, sweet, bbq]}
+      - {name: peking duck, variants: [roast duck, beijing duck], diet: non_veg, meal: dinner, price: [25, 45], prep: 30, tags: [duck, roasted, crispy, pancakes]}
+      - {name: chilli chicken, variants: [chili chicken, dry chilli chicken], diet: non_veg, meal: main, price: [11, 14], prep: 15, tags: [indo chinese, spicy, fried, chicken]}
+      - {name: gobi manchurian, variants: [cauliflower manchurian, veg manchurian], diet: vegan, meal: main, price: [10, 13], prep: 15, tags: [indo chinese, fried, cauliflower, spicy]}
+      - {name: hot pot, variants: [hotpot, sichuan hot pot], diet: non_veg, meal: dinner, price: [20, 35], prep: 15, tags: [soup, spicy, warm, sharing]}
+      - {name: scallion pancake, variants: [green onion pancake, cong you bing], diet: vegan, meal: snack, price: [5, 8], prep: 10, tags: [pancake, crispy, scallion]}
+      - {name: sesame balls, variants: [jian dui], diet: vegan, meal: dessert, price: [4, 6], prep: 8, tags: [dessert, sweet, sesame, fried]}
+  japanese:
+    aliases: [japanese, japanese food, sushi, izakaya]
+    yelp_categories: [Japanese, Sushi Bars, Ramen, Izakaya, Teppanyaki, Japanese Curry]
+    dishes:
+      - {name: tonkotsu ramen, variants: [ramen, pork ramen, tonkatsu ramen], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [noodles, soup, pork, rich, warm, comfort]}
+      - {name: miso ramen, variants: [miso noodle soup], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [noodles, soup, miso, warm]}
+      - {name: spicy ramen, variants: [spicy miso ramen, tantanmen], diet: non_veg, meal: main, price: [14, 18], prep: 15, tags: [noodles, soup, spicy, warm]}
+      - {name: vegetable ramen, variants: [veggie ramen, vegan ramen], diet: vegan, meal: main, price: [12, 16], prep: 15, tags: [noodles, soup, vegetables, warm]}
+      - {name: california roll, variants: [cali roll], diet: non_veg, meal: main, price: [7, 10], prep: 10, tags: [sushi, crab, avocado, rice]}
+      - {name: spicy tuna roll, variants: [spicy tuna maki], diet: non_veg, meal: main, price: [8, 11], prep: 10, tags: [sushi, tuna, spicy, raw fish]}
+      - {name: salmon nigiri, variants: [sake nigiri, salmon sushi], diet: non_veg, meal: main, price: [6, 9], prep: 8, tags: [sushi, salmon, raw fish], gf: true}
+      - {name: dragon roll, variants: [dragon maki], diet: non_veg, meal: dinner, price: [13, 17], prep: 15, tags: [sushi, eel, avocado]}
+      - {name: rainbow roll, variants: [rainbow maki], diet: non_veg, meal: dinner, price: [13, 17], prep: 15, tags: [sushi, assorted fish, colorful]}
+      - {name: sashimi platter, variants: [sashimi, assorted sashimi], diet: non_veg, meal: dinner, price: [20, 32], prep: 15, tags: [raw fish, fresh, light, healthy], gf: true}
+      - {name: avocado roll, variants: [avocado maki], diet: vegan, meal: main, price: [6, 8], prep: 8, tags: [sushi, avocado, vegetarian], gf: true}
+      - {name: chicken teriyaki, variants: [teriyaki chicken], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [grilled, chicken, sweet, teriyaki]}
+      - {name: chicken katsu, variants: [katsu chicken, chicken katsu curry, katsu curry], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [fried, crispy, chicken, curry]}
+      - {name: tonkatsu, variants: [pork katsu, pork cutlet], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [fried, crispy, pork]}
+      - {name: shrimp tempura, variants: [tempura, ebi tempura], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [fried, shrimp, crispy, light]}
+      - {name: chicken gyoza, variants: [gyoza, japanese dumplings], diet: non_veg, meal: snack, price: [7, 9], prep: 10, tags: [dumplings, pan fried]}
+      - {name: edamame, variants: [salted edamame], diet: vegan, meal: snack, price: [4, 6], prep: 5, tags: [soybeans, healthy, light, appetizer], gf: true}
+      - {name: miso soup, variants: [misoshiru], diet: vegan, meal: side, price: [3, 5], prep: 5, tags: [soup, tofu, light, warm], gf: true}
+      - {name: udon noodle soup, variants: [udon, kitsune udon, tempura udon], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [noodles, soup, thick noodles, warm, comfort]}
+      - {name: yakisoba, variants: [yaki soba], diet: non_veg, meal: main, price: [10, 14], prep: 12, tags: [noodles, stir fry]}
+      - {name: chicken donburi, variants: [oyakodon, chicken rice bowl], diet: non_veg, meal: lunch, price: [11, 15], prep: 15, tags: [rice bowl, chicken, egg, comfort]}
+      - {name: beef gyudon, variants: [gyudon, beef bowl], diet: non_veg, meal: lunch, price: [11, 15], prep: 15, tags: [rice bowl, beef, savory]}
+      - {name: okonomiyaki, variants: [japanese pancake], diet: non_veg, meal: snack, price: [11, 15], prep: 15, tags: [pancake, cabbage, savory]}
+      - {name: takoyaki, variants: [octopus balls], diet: non_veg, meal: snack, price: [7, 10], prep: 10, tags: [street food, octopus, fried]}
+      - {name: matcha ice cream, variants: [green tea ice cream], diet: veg, meal: dessert, price: [4, 6], prep: 3, tags: [dessert, green tea, cold, sweet], gf: true}
+      - {name: mochi, variants: [mochi ice cream, daifuku], diet: veg, meal: dessert, price: [4, 7], prep: 3, tags: [dessert, sweet, rice cake], gf: true}
+  korean:
+    aliases: [korean, korean food, k food]
+    yelp_categories: [Korean]
+    dishes:
+      - {name: bibimbap, variants: [bi bim bap, dolsot bibimbap, mixed rice bowl], diet: egg, meal: main, price: [12, 16], prep: 15, tags: [rice bowl, vegetables, egg, healthy, spicy]}
+      - {name: korean bbq beef, variants: [bulgogi, beef bulgogi, korean bbq], diet: non_veg, meal: dinner, price: [16, 24], prep: 20, tags: [grilled, beef, sweet, bbq, sharing]}
+      - {name: galbi, variants: [kalbi, short ribs, korean short ribs], diet: non_veg, meal: dinner, price: [20, 30], prep: 20, tags: [grilled, beef, short ribs, bbq]}
+      - {name: korean fried chicken, variants: [kfc korean, yangnyeom chicken, k fried chicken], diet: non_veg, meal: late, price: [14, 20], prep: 20, tags: [fried, crispy, chicken, sweet, spicy]}
+      - {name: kimchi fried rice, variants: [kimchi bokkeumbap], diet: egg, meal: main, price: [11, 14], prep: 12, tags: [rice, kimchi, spicy, egg]}
+      - {name: kimchi jjigae, variants: [kimchi stew, kimchi soup], diet: non_veg, meal: main, price: [12, 15], prep: 15, tags: [stew, kimchi, spicy, warm, comfort]}
+      - {name: sundubu jjigae, variants: [soft tofu stew, tofu soup, soondubu], diet: non_veg, meal: main, price: [12, 15], prep: 15, tags: [stew, tofu, spicy, warm, comfort]}
+      - {name: tteokbokki, variants: [ddeokbokki, spicy rice cakes, topokki], diet: veg, meal: snack, price: [9, 13], prep: 12, tags: [rice cakes, spicy, street food, chewy]}
+      - {name: japchae, variants: [chapchae, glass noodles], diet: vegan, meal: main, price: [11, 15], prep: 15, tags: [noodles, sweet potato noodles, vegetables, sesame], gf: true}
+      - {name: kimbap, variants: [gimbap, korean sushi roll], diet: egg, meal: lunch, price: [8, 11], prep: 10, tags: [rice roll, seaweed, light]}
+      - {name: haemul pajeon, variants: [seafood pancake, pajeon, scallion pancake korean], diet: non_veg, meal: snack, price: [12, 16], prep: 15, tags: [pancake, seafood, crispy]}
+      - {name: naengmyeon, variants: [cold noodles, mul naengmyeon], diet: non_veg, meal: lunch, price: [12, 15], prep: 12, tags: [noodles, cold, refreshing, light]}
+      - {name: dakgalbi, variants: [spicy stir fried chicken], diet: non_veg, meal: dinner, price: [14, 18], prep: 20, tags: [chicken, spicy, stir fry]}
+      - {name: kimchi, variants: [napa kimchi], diet: vegan, meal: side, price: [3, 5], prep: 2, tags: [fermented, spicy, side], gf: true}
+  thai:
+    aliases: [thai, thai food, siamese]
+    yelp_categories: [Thai]
+    dishes:
+      - {name: pad thai, variants: [chicken pad thai, phad thai, pad thai noodles], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [noodles, rice noodles, peanuts, sweet, tangy], gf: true}
+      - {name: tofu pad thai, variants: [vegetable pad thai, veggie pad thai], diet: vegan, meal: main, price: [10, 14], prep: 15, tags: [noodles, tofu, peanuts], gf: true}
+      - {name: shrimp pad thai, variants: [prawn pad thai], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [noodles, shrimp, peanuts], gf: true}
+      - {name: green curry, variants: [thai green curry, gaeng keow wan], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [curry, coconut, spicy, basil], gf: true}
+      - {name: red curry, variants: [thai red curry, gaeng phet], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [curry, coconut, spicy], gf: true}
+      - {name: massaman curry, variants: [mussaman curry, matsaman curry], diet: non_veg, meal: main, price: [13, 17], prep: 20, tags: [curry, coconut, potato, peanuts, mild, comfort], gf: true}
+      - {name: panang curry, variants: [penang curry, phanaeng curry], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [curry, coconut, rich], gf: true}
+      - {name: tom yum soup, variants: [tom yum, tom yum goong, tom yam], diet: non_veg, meal: main, price: [6, 12], prep: 12, tags: [soup, spicy, sour, lemongrass, warm], gf: true}
+      - {name: tom kha gai, variants: [tom kha, coconut soup], diet: non_veg, meal: main, price: [6, 12], prep: 12, tags: [soup, coconut, chicken, warm], gf: true}
+      - {name: pad see ew, variants: [pad siew, phat si io], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [noodles, wide noodles, soy sauce, savory]}
+      - {name: drunken noodles, variants: [pad kee mao, pad kee mow, pad ki mao], diet: non_veg, meal: main, price: [11, 15], prep: 15, tags: [noodles, spicy, basil]}
+      - {name: thai basil chicken, variants: [pad kra pao, pad krapow, basil chicken], diet: non_veg, meal: main, price: [11, 15], prep: 12, tags: [stir fry, basil, spicy, chicken], gf: true}
+      - {name: thai fried rice, variants: [khao pad, pineapple fried rice], diet: egg, meal: main, price: [10, 14], prep: 12, tags: [rice, stir fry, egg]}
+      - {name: papaya salad, variants: [som tam, som tum, green papaya salad], diet: vegan, meal: lunch, price: [8, 11], prep: 10, tags: [salad, spicy, tangy, light, healthy], gf: true}
+      - {name: larb, variants: [laab, larb gai, chicken larb], diet: non_veg, meal: main, price: [10, 14], prep: 12, tags: [salad, minced chicken, lime, spicy], gf: true}
+      - {name: chicken satay, variants: [satay, sate], diet: non_veg, meal: snack, price: [8, 11], prep: 15, tags: [grilled, skewers, peanut sauce], gf: true}
+      - {name: thai spring rolls, variants: [fresh rolls, summer rolls thai], diet: vegan, meal: snack, price: [6, 9], prep: 10, tags: [rolls, fresh, light]}
+      - {name: mango sticky rice, variants: [khao niao mamuang, sticky rice mango], diet: vegan, meal: dessert, price: [6, 9], prep: 8, tags: [dessert, sweet, mango, coconut], gf: true}
+      - {name: thai iced tea, variants: [cha yen, thai tea], diet: veg, meal: drink, price: [3, 5], prep: 3, tags: [drink, sweet, cold, tea], gf: true}
+      - {name: khao soi, variants: [khao soy, curry noodle soup], diet: non_veg, meal: main, price: [13, 17], prep: 15, tags: [noodles, curry, coconut, soup, warm]}
+  vietnamese:
+    aliases: [vietnamese, vietnamese food, viet]
+    yelp_categories: [Vietnamese]
+    dishes:
+      - {name: beef pho, variants: [pho, pho bo, pho tai, beef noodle soup], diet: non_veg, meal: main, price: [11, 15], prep: 12, tags: [noodles, soup, beef, broth, warm, comfort], gf: true}
+      - {name: chicken pho, variants: [pho ga], diet: non_veg, meal: main, price: [11, 14], prep: 12, tags: [noodles, soup, chicken, broth, warm, light], gf: true}
+      - {name: vegetable pho, variants: [veggie pho, tofu pho, vegan pho], diet: vegan, meal: main, price: [10, 13], prep: 12, tags: [noodles, soup, tofu, light, warm], gf: true}
+      - {name: banh mi, variants: [banh mi sandwich, vietnamese sandwich, bahn mi], diet: non_veg, meal: lunch, price: [7, 10], prep: 8, tags: [sandwich, baguette, pickled vegetables, pork]}
+      - {name: bun cha, variants: [grilled pork vermicelli], diet: non_veg, meal: lunch, price: [12, 15], prep: 15, tags: [vermicelli, grilled pork, herbs], gf: true}
+      - {name: bun bo hue, variants: [spicy beef noodle soup], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [noodles, soup, spicy, lemongrass], gf: true}
+      - {name: vermicelli bowl, variants: [bun, bun thit nuong, noodle salad], diet: non_veg, meal: lunch, price: [11, 15], prep: 12, tags: [vermicelli, grilled, herbs, fresh, light], gf: true}
+      - {name: summer rolls, variants: [goi cuon, fresh spring rolls, salad rolls], diet: non_veg, meal: snack, price: [6, 9], prep: 10, tags: [rolls, shrimp, fresh, light, healthy], gf: true}
+      - {name: cha gio, variants: [vietnamese egg rolls, imperial rolls], diet: non_veg, meal: snack, price: [6, 9], prep: 10, tags: [fried, rolls, pork, crispy]}
+      - {name: com tam, variants: [broken rice, com tam suon], diet: non_veg, meal: lunch, price: [12, 15], prep: 15, tags: [rice, grilled pork chop, egg]}
+      - {name: vietnamese iced coffee, variants: [ca phe sua da, viet coffee], diet: veg, meal: drink, price: [4, 6], prep: 3, tags: [drink, coffee, sweet, cold], gf: true}
+      - {name: lemongrass chicken, variants: [ga xao xa ot], diet: non_veg, meal: main, price: [12, 15], prep: 15, tags: [chicken, lemongrass, spicy, stir fry], gf: true}
+  italian:
+    aliases: [italian, italian food, trattoria, osteria]
+    yelp_categories: [Italian, Sicilian, Tuscan]
+    dishes:
+      - {name: spaghetti carbonara, variants: [carbonara, pasta carbonara], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [pasta, creamy, bacon, egg, comfort]}
+      - {name: spaghetti and meatballs, variants: [spaghetti meatballs, meatball spaghetti], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [pasta, meatballs, tomato, comfort]}
+      - {name: spaghetti bolognese, variants: [bolognese, pasta bolognese, spag bol], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [pasta, meat sauce, tomato, comfort]}
+      - {name: fettuccine alfredo, variants: [alfredo, chicken alfredo, fettucine alfredo], diet: veg, meal: main, price: [14, 19], prep: 15, tags: [pasta, creamy, cheese, rich, comfort]}
+      - {name: penne alla vodka, variants: [penne vodka, vodka pasta, rigatoni vodka], diet: veg, meal: main, price: [14, 19], prep: 15, tags: [pasta, creamy, tomato]}
+      - {name: penne arrabbiata, variants: [arrabbiata, penne arrabiata], diet: vegan, meal: main, price: [12, 16], prep: 12, tags: [pasta, spicy, tomato, garlic]}
+      - {name: lasagna, variants: [lasagne, meat lasagna, beef lasagna], diet: non_veg, meal: dinner, price: [15, 20], prep: 20, tags: [pasta, baked, cheese, meat sauce, comfort, warm]}
+      - {name: vegetable lasagna, variants: [veggie lasagna, spinach lasagna], diet: veg, meal: dinner, price: [14, 18], prep: 20, tags: [pasta, baked, cheese, vegetables]}
+      - {name: chicken parmesan, variants: [chicken parm, chicken parmigiana], diet: non_veg, meal: dinner, price: [16, 21], prep: 20, tags: [fried, chicken, cheese, tomato, comfort]}
+      - {name: eggplant parmesan, variants: [eggplant parm, melanzane parmigiana, aubergine parmigiana], diet: veg, meal: dinner, price: [14, 19], prep: 20, tags: [eggplant, baked, cheese, tomato]}
+      - {name: mushroom risotto, variants: [risotto, risotto ai funghi], diet: veg, meal: dinner, price: [16, 22], prep: 25, tags: [rice, creamy, mushroom, rich], gf: true}
+      - {name: gnocchi, variants: [potato gnocchi, gnocchi pomodoro], diet: veg, meal: main, price: [15, 20], prep: 15, tags: [dumplings, potato, soft]}
+      - {name: ravioli, variants: [cheese ravioli, ricotta ravioli], diet: veg, meal: main, price: [14, 19], prep: 15, tags: [pasta, stuffed, cheese]}
+      - {name: shrimp scampi, variants: [scampi, linguine scampi], diet: non_veg, meal: dinner, price: [18, 24], prep: 15, tags: [pasta, shrimp, garlic, butter]}
+      - {name: linguine with clams, variants: [linguine vongole, spaghetti alle vongole], diet: non_veg, meal: dinner, price: [18, 24], prep: 15, tags: [pasta, clams, garlic, seafood]}
+      - {name: pesto pasta, variants: [pasta al pesto, trofie pesto], diet: veg, meal: main, price: [13, 17], prep: 12, tags: [pasta, basil, pine nuts, fresh]}
+      - {name: minestrone soup, variants: [minestrone], diet: vegan, meal: lunch, price: [6, 9], prep: 10, tags: [soup, vegetables, healthy, warm, light]}
+      - {name: caprese salad, variants: [insalata caprese, caprese], diet: veg, meal: lunch, price: [10, 14], prep: 8, tags: [salad, mozzarella, tomato, basil, fresh, light], gf: true}
+      - {name: bruschetta, variants: [tomato bruschetta], diet: vegan, meal: snack, price: [8, 11], prep: 8, tags: [bread, tomato, garlic, appetizer]}
+      - {name: garlic bread, variants: [garlic knots, cheesy garlic bread], diet: veg, meal: side, price: [5, 8], prep: 8, tags: [bread, garlic, buttery]}
+      - {name: fried calamari, variants: [calamari, calamari fritti], diet: non_veg, meal: snack, price: [12, 16], prep: 12, tags: [fried, squid, crispy, appetizer]}
+      - {name: osso buco, variants: [ossobuco], diet: non_veg, meal: dinner, price: [28, 38], prep: 30, tags: [veal, braised, rich, warm], gf: true}
+      - {name: tiramisu, variants: [tiramisu cake], diet: veg, meal: dessert, price: [7, 10], prep: 5, tags: [dessert, coffee, mascarpone, sweet]}
+      - {name: cannoli, variants: [cannolis, sicilian cannoli], diet: veg, meal: dessert, price: [4, 7], prep: 5, tags: [dessert, ricotta, sweet, crispy]}
+      - {name: panna cotta, variants: [pannacotta], diet: veg, meal: dessert, price: [7, 10], prep: 5, tags: [dessert, cream, sweet, cold], gf: true}
+      - {name: gelato, variants: [italian gelato], diet: veg, meal: dessert, price: [5, 8], prep: 3, tags: [dessert, cold, sweet], gf: true}
+  pizza:
+    aliases: [pizza, pizzeria, pizza place, slice]
+    yelp_categories: [Pizza]
+    dishes:
+      - {name: margherita pizza, variants: [margarita pizza, pizza margherita, margherita], diet: veg, meal: main, price: [12, 17], prep: 15, tags: [pizza, mozzarella, tomato, basil, cheesy]}
+      - {name: pepperoni pizza, variants: [pepperoni pie, pepperoni], diet: non_veg, meal: main, price: [13, 18], prep: 15, tags: [pizza, pepperoni, cheesy]}
+      - {name: cheese pizza, variants: [plain pizza, plain cheese pizza, cheese pie], diet: veg, meal: main, price: [11, 15], prep: 15, tags: [pizza, cheesy, comfort]}
+      - {name: veggie pizza, variants: [vegetable pizza, veggie supreme, garden pizza], diet: veg, meal: main, price: [13, 18], prep: 15, tags: [pizza, vegetables, cheesy]}
+      - {name: vegan pizza, variants: [plant based pizza, dairy free pizza], diet: vegan, meal: main, price: [14, 19], prep: 15, tags: [pizza, vegan cheese, vegetables]}
+      - {name: bbq chicken pizza, variants: [barbecue chicken pizza], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [pizza, chicken, bbq sauce, smoky]}
+      - {name: hawaiian pizza, variants: [ham and pineapple pizza, hawaiian], diet: non_veg, meal: main, price: [13, 18], prep: 15, tags: [pizza, ham, pineapple, sweet]}
+      - {name: meat lovers pizza, variants: [meat lover pizza, meat feast pizza], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [pizza, sausage, pepperoni, bacon, hearty]}
+      - {name: supreme pizza, variants: [deluxe pizza, everything pizza], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [pizza, sausage, peppers, onions]}
+      - {name: buffalo chicken pizza, variants: [buffalo pizza], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [pizza, chicken, spicy, ranch]}
+      - {name: white pizza, variants: [pizza bianca, ricotta pizza], diet: veg, meal: main, price: [13, 17], prep: 15, tags: [pizza, ricotta, garlic, cheesy]}
+      - {name: paneer tikka pizza, variants: [tandoori paneer pizza], diet: veg, meal: main, price: [14, 18], prep: 15, tags: [pizza, paneer, spicy, fusion]}
+      - {name: sicilian pizza, variants: [square pizza, grandma pizza], diet: veg, meal: main, price: [14, 19], prep: 20, tags: [pizza, thick crust, tomato]}
+      - {name: deep dish pizza, variants: [chicago deep dish, chicago style pizza], diet: veg, meal: dinner, price: [18, 26], prep: 30, tags: [pizza, thick, cheesy, hearty]}
+      - {name: calzone, variants: [cheese calzone, calzones], diet: veg, meal: main, price: [11, 15], prep: 15, tags: [folded pizza, ricotta, cheesy]}
+      - {name: stromboli, variants: [strombolis], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [rolled pizza, salami, cheesy]}
+      - {name: pizza slice, variants: [slice, single slice, cheese slice], diet: veg, meal: late, price: [3, 5], prep: 5, tags: [pizza, quick, cheap, late night]}
+      - {name: cheesy breadsticks, variants: [breadsticks, cheese sticks], diet: veg, meal: side, price: [6, 9], prep: 10, tags: [bread, cheese, side]}
+      - {name: buffalo wings, variants: [chicken wings, hot wings, wings], diet: non_veg, meal: late, price: [11, 16], prep: 15, tags: [chicken, spicy, fried, game day], gf: true}
+  american:
+    aliases: [american, american food, burgers, fast food, diner, comfort food]
+    yelp_categories: [American (Traditional), American (New), Burgers, Fast Food, Chicken Wings, Hot Dogs, Diners, Gastropubs, Chicken Shop, Comfort Food]
+    dishes:
+      - {name: cheeseburger, variants: [cheese burger, classic cheeseburger], diet: non_veg, meal: main, price: [10, 15], prep: 12, tags: [burger, beef, cheese, comfort]}
+      - {name: bacon cheeseburger, variants: [bacon burger], diet: non_veg, meal: main, price: [12, 17], prep: 12, tags: [burger, beef, bacon, cheese]}
+      - {name: double smash burger, variants: [smash burger, smashburger, double cheeseburger], diet: non_veg, meal: main, price: [12, 16], prep: 10, tags: [burger, beef, crispy, cheese]}
+      - {name: veggie burger, variants: [vegetarian burger, black bean burger, garden burger], diet: veg, meal: main, price: [11, 15], prep: 12, tags: [burger, vegetarian, black bean]}
+      - {name: impossible burger, variants: [beyond burger, plant based burger, vegan burger], diet: vegan, meal: main, price: [13, 17], prep: 12, tags: [burger, plant based, vegan]}
+      - {name: crispy chicken sandwich, variants: [fried chicken sandwich, chicken sandwich, spicy chicken sandwich], diet: non_veg, meal: main, price: [10, 14], prep: 12, tags: [sandwich, fried chicken, crispy, pickles]}
+      - {name: grilled chicken sandwich, variants: [chicken breast sandwich], diet: non_veg, meal: lunch, price: [10, 14], prep: 12, tags: [sandwich, grilled chicken, healthy]}
+      - {name: chicken tenders, variants: [chicken strips, chicken fingers, tenders], diet: non_veg, meal: main, price: [9, 13], prep: 12, tags: [fried, chicken, crispy, kids]}
+      - {name: fried chicken, variants: [southern fried chicken, fried chicken bucket], diet: non_veg, meal: main, price: [12, 17], prep: 20, tags: [fried, chicken, crispy, comfort]}
+      - {name: hot dog, variants: [hotdog, chili dog, frank], diet: non_veg, meal: snack, price: [4, 7], prep: 5, tags: [sausage, bun, quick, cheap]}
+      - {name: mac and cheese, variants: [mac n cheese, macaroni and cheese, mac & cheese], diet: veg, meal: main, price: [8, 12], prep: 12, tags: [pasta, cheesy, comfort, warm, creamy]}
+      - {name: loaded fries, variants: [cheese fries, chili cheese fries, loaded cheese fries], diet: non_veg, meal: late, price: [7, 11], prep: 10, tags: [fries, cheese, bacon, comfort]}
+      - {name: onion rings, variants: [onion ring], diet: veg, meal: side, price: [5, 7], prep: 8, tags: [fried, onion, crispy, side]}
+      - {name: tater tots, variants: [tots], diet: vegan, meal: side, price: [4, 6], prep: 8, tags: [potato, fried, crispy, side]}
+      - {name: sweet potato fries, variants: [yam fries], diet: vegan, meal: side, price: [5, 7], prep: 8, tags: [sweet potato, fried, side]}
+      - {name: chicken pot pie, variants: [pot pie], diet: non_veg, meal: dinner, price: [12, 16], prep: 20, tags: [pie, chicken, creamy, comfort, warm]}
+      - {name: meatloaf, variants: [meat loaf, homestyle meatloaf], diet: non_veg, meal: dinner, price: [13, 17], prep: 20, tags: [beef, comfort, gravy, warm]}
+      - {name: clam chowder, variants: [new england clam chowder, chowder], diet: non_veg, meal: lunch, price: [7, 11], prep: 10, tags: [soup, clams, creamy, warm, comfort]}
+      - {name: chicken noodle soup, variants: [chicken soup], diet: non_veg, meal: lunch, price: [6, 10], prep: 10, tags: [soup, chicken, noodles, warm, comfort, light]}
+      - {name: tomato soup, variants: [tomato basil soup], diet: veg, meal: lunch, price: [6, 9], prep: 10, tags: [soup, tomato, warm, comfort]}
+      - {name: grilled cheese, variants: [grilled cheese sandwich], diet: veg, meal: lunch, price: [7, 10], prep: 8, tags: [sandwich, cheese, comfort, warm]}
+      - {name: cobb salad, variants: [chicken cobb salad], diet: non_veg, meal: lunch, price: [12, 16], prep: 10, tags: [salad, chicken, bacon, egg, avocado], gf: true}
+      - {name: caesar salad, variants: [chicken caesar salad, caesar], diet: non_veg, meal: lunch, price: [10, 15], prep: 8, tags: [salad, romaine, parmesan, light]}
+      - {name: ribeye steak, variants: [steak, rib eye, ribeye], diet: non_veg, meal: dinner, price: [28, 45], prep: 25, tags: [steak, beef, grilled], gf: true}
+      - {name: milkshake, variants: [chocolate milkshake, vanilla shake, shake], diet: veg, meal: dessert, price: [5, 8], prep: 5, tags: [dessert, cold, sweet, drink], gf: true}
+      - {name: apple pie, variants: [apple pie a la mode], diet: veg, meal: dessert, price: [5, 8], prep: 5, tags: [dessert, apple, pie, warm, sweet]}
+      - {name: brownie sundae, variants: [brownie with ice cream, hot fudge sundae], diet: veg, meal: dessert, price: [7, 10], prep: 5, tags: [dessert, chocolate, ice cream, sweet]}
+  bbq_southern:
+    aliases: [bbq, barbecue, barbeque, southern, soul food, smokehouse]
+    yelp_categories: [Barbeque, Southern, Soul Food, Smokehouse]
+    dishes:
+      - {name: pulled pork sandwich, variants: [pulled pork, bbq pork sandwich], diet: non_veg, meal: lunch, price: [11, 15], prep: 10, tags: [bbq, pork, smoked, sandwich]}
+      - {name: smoked brisket, variants: [brisket, beef brisket, texas brisket], diet: non_veg, meal: dinner, price: [18, 26], prep: 15, tags: [bbq, beef, smoked, slow cooked], gf: true}
+      - {name: baby back ribs, variants: [ribs, bbq ribs, pork ribs, spare ribs], diet: non_veg, meal: dinner, price: [20, 30], prep: 20, tags: [bbq, pork, smoked, sticky], gf: true}
+      - {name: smoked chicken, variants: [bbq chicken, half chicken], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [bbq, chicken, smoked], gf: true}
+      - {name: burnt ends, variants: [brisket burnt ends], diet: non_veg, meal: dinner, price: [16, 22], prep: 15, tags: [bbq, beef, smoky, caramelized], gf: true}
+      - {name: collard greens, variants: [collards], diet: non_veg, meal: side, price: [4, 6], prep: 5, tags: [greens, side, southern], gf: true}
+      - {name: cornbread, variants: [corn bread, skillet cornbread], diet: veg, meal: side, price: [3, 5], prep: 5, tags: [bread, corn, sweet, side]}
+      - {name: shrimp and grits, variants: [shrimp n grits], diet: non_veg, meal: brunch, price: [16, 22], prep: 15, tags: [shrimp, grits, creamy, southern, comfort], gf: true}
+      - {name: chicken and waffles, variants: [chicken n waffles, fried chicken and waffles], diet: non_veg, meal: brunch, price: [15, 20], prep: 20, tags: [fried chicken, waffles, sweet, savory, comfort]}
+      - {name: biscuits and gravy, variants: [biscuit and gravy, sausage gravy biscuits], diet: non_veg, meal: breakfast, price: [8, 12], prep: 10, tags: [biscuits, gravy, sausage, comfort, warm]}
+      - {name: fried catfish, variants: [catfish, catfish platter], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [fried, fish, cornmeal, southern]}
+      - {name: baked beans, variants: [bbq beans], diet: non_veg, meal: side, price: [3, 5], prep: 5, tags: [beans, sweet, smoky, side], gf: true}
+      - {name: coleslaw, variants: [cole slaw, slaw], diet: veg, meal: side, price: [3, 5], prep: 3, tags: [cabbage, creamy, side, cold], gf: true}
+      - {name: banana pudding, variants: [nanner pudding], diet: veg, meal: dessert, price: [5, 7], prep: 3, tags: [dessert, banana, sweet, creamy]}
+      - {name: peach cobbler, variants: [cobbler], diet: veg, meal: dessert, price: [6, 8], prep: 5, tags: [dessert, peach, warm, sweet]}
+  mexican:
+    aliases: [mexican, mexican food, tex mex, taqueria]
+    yelp_categories: [Mexican, Tex-Mex, Tacos, New Mexican Cuisine]
+    dishes:
+      - {name: carne asada tacos, variants: [carne asada taco, steak tacos, asada tacos], diet: non_veg, meal: main, price: [10, 14], prep: 12, tags: [tacos, steak, grilled, cilantro], gf: true}
+      - {name: al pastor tacos, variants: [tacos al pastor, pastor tacos], diet: non_veg, meal: late, price: [10, 14], prep: 12, tags: [tacos, pork, pineapple, spicy], gf: true}
+      - {name: fish tacos, variants: [baja fish tacos, fish taco], diet: non_veg, meal: main, price: [12, 16], prep: 12, tags: [tacos, fish, fried, cabbage, light]}
+      - {name: chicken tacos, variants: [chicken taco, pollo tacos], diet: non_veg, meal: main, price: [9, 13], prep: 12, tags: [tacos, chicken, grilled], gf: true}
+      - {name: birria tacos, variants: [birria, quesabirria, birria taco], diet: non_veg, meal: late, price: [13, 17], prep: 15, tags: [tacos, beef, consomme, cheesy, warm], gf: true}
+      - {name: carnitas tacos, variants: [carnitas, carnitas taco], diet: non_veg, meal: main, price: [10, 14], prep: 12, tags: [tacos, pork, slow cooked], gf: true}
+      - {name: veggie tacos, variants: [vegetarian tacos, potato tacos, vegan tacos], diet: vegan, meal: main, price: [9, 12], prep: 12, tags: [tacos, vegetables, beans], gf: true}
+      - {name: chicken burrito, variants: [burrito, pollo burrito], diet: non_veg, meal: main, price: [10, 14], prep: 10, tags: [burrito, chicken, rice, beans]}
+      - {name: carne asada burrito, variants: [steak burrito, asada burrito], diet: non_veg, meal: main, price: [11, 15], prep: 10, tags: [burrito, steak, rice, beans]}
+      - {name: bean and cheese burrito, variants: [bean burrito, veggie burrito], diet: veg, meal: main, price: [8, 11], prep: 10, tags: [burrito, beans, cheese, cheap]}
+      - {name: california burrito, variants: [cali burrito], diet: non_veg, meal: late, price: [11, 15], prep: 10, tags: [burrito, steak, fries, late night]}
+      - {name: burrito bowl, variants: [chicken bowl, rice bowl mexican], diet: non_veg, meal: lunch, price: [10, 14], prep: 10, tags: [bowl, rice, beans, healthy], gf: true}
+      - {name: chicken quesadilla, variants: [quesadilla, cheese quesadilla], diet: non_veg, meal: main, price: [9, 13], prep: 10, tags: [cheese, tortilla, chicken, cheesy]}
+      - {name: chicken enchiladas, variants: [enchiladas, enchiladas verdes], diet: non_veg, meal: dinner, price: [12, 16], prep: 15, tags: [enchiladas, chicken, cheese, sauce], gf: true}
+      - {name: chicken fajitas, variants: [fajitas, steak fajitas], diet: non_veg, meal: dinner, price: [15, 20], prep: 15, tags: [sizzling, peppers, onions, chicken]}
+      - {name: nachos supreme, variants: [nachos, loaded nachos], diet: non_veg, meal: late, price: [10, 14], prep: 10, tags: [nachos, cheese, beans, sharing]}
+      - {name: chips and guacamole, variants: [guacamole, guac and chips, chips and guac], diet: vegan, meal: snack, price: [6, 10], prep: 5, tags: [avocado, chips, fresh], gf: true}
+      - {name: chips and salsa, variants: [salsa and chips], diet: vegan, meal: snack, price: [3, 6], prep: 3, tags: [chips, tomato, spicy], gf: true}
+      - {name: elote, variants: [mexican street corn, street corn], diet: veg, meal: snack, price: [4, 7], prep: 8, tags: [corn, cheese, street food, spicy], gf: true}
+      - {name: tamales, variants: [tamale, pork tamales], diet: non_veg, meal: main, price: [9, 13], prep: 10, tags: [masa, steamed, pork, warm], gf: true}
+      - {name: pozole, variants: [posole, pozole rojo], diet: non_veg, meal: main, price: [12, 16], prep: 15, tags: [soup, hominy, pork, warm, spicy], gf: true}
+      - {name: chilaquiles, variants: [chilaquiles rojos, chilaquiles verdes], diet: egg, meal: breakfast, price: [11, 15], prep: 12, tags: [tortilla chips, salsa, egg, breakfast], gf: true}
+      - {name: huevos rancheros, variants: [rancheros], diet: egg, meal: breakfast, price: [10, 14], prep: 12, tags: [eggs, tortilla, salsa, breakfast], gf: true}
+      - {name: churros, variants: [churro, churros con chocolate], diet: veg, meal: dessert, price: [5, 8], prep: 8, tags: [dessert, fried, cinnamon, sweet]}
+      - {name: horchata, variants: [agua de horchata], diet: vegan, meal: drink, price: [3, 5], prep: 2, tags: [drink, rice milk, cinnamon, sweet, cold], gf: true}
+  mediterranean:
+    aliases: [mediterranean, greek, greek food, mediterranean food]
+    yelp_categories: [Mediterranean, Greek]
+    dishes:
+      - {name: chicken gyro, variants: [gyro, gyros, chicken gyros, gyro wrap], diet: non_veg, meal: lunch, price: [10, 13], prep: 10, tags: [wrap, pita, chicken, tzatziki]}
+      - {name: lamb gyro, variants: [beef and lamb gyro, lamb gyros], diet: non_veg, meal: lunch, price: [11, 14], prep: 10, tags: [wrap, pita, lamb, tzatziki]}
+      - {name: chicken souvlaki, variants: [souvlaki, souvlaki platter], diet: non_veg, meal: main, price: [13, 18], prep: 15, tags: [grilled, skewers, chicken, lemon], gf: true}
+      - {name: greek salad, variants: [horiatiki, village salad], diet: veg, meal: lunch, price: [10, 14], prep: 8, tags: [salad, feta, olives, healthy, light, fresh], gf: true}
+      - {name: spanakopita, variants: [spinach pie], diet: veg, meal: snack, price: [7, 10], prep: 10, tags: [pastry, spinach, feta, flaky]}
+      - {name: moussaka, variants: [mousaka], diet: non_veg, meal: dinner, price: [16, 21], prep: 20, tags: [eggplant, baked, lamb, bechamel, comfort]}
+      - {name: hummus plate, variants: [hummus, houmous, hummus and pita], diet: vegan, meal: snack, price: [7, 10], prep: 5, tags: [chickpeas, dip, pita, healthy]}
+      - {name: falafel plate, variants: [falafel, felafel, falafel platter], diet: vegan, meal: main, price: [11, 14], prep: 12, tags: [chickpeas, fried, tahini, vegetarian]}
+      - {name: mediterranean bowl, variants: [grain bowl, chicken bowl mediterranean], diet: non_veg, meal: lunch, price: [12, 16], prep: 10, tags: [bowl, rice, healthy, fresh, light], gf: true}
+      - {name: dolmades, variants: [dolmas, stuffed grape leaves], diet: vegan, meal: snack, price: [7, 10], prep: 5, tags: [grape leaves, rice, lemon], gf: true}
+      - {name: baklava, variants: [baklawa], diet: veg, meal: dessert, price: [4, 6], prep: 3, tags: [dessert, pastry, honey, nuts, sweet]}
+      - {name: tzatziki, variants: [tzatziki dip], diet: veg, meal: side, price: [4, 6], prep: 3, tags: [yogurt, cucumber, dip], gf: true}
+      - {name: grilled octopus, variants: [octopus], diet: non_veg, meal: dinner, price: [18, 26], prep: 20, tags: [octopus, grilled, seafood], gf: true}
+  middle_eastern:
+    aliases: [middle eastern, lebanese, turkish, persian, arabic, halal food]
+    yelp_categories: [Middle Eastern, Lebanese, Turkish, Falafel, Halal, Persian/Iranian, Afghan, Arabic, Kebab]
+    dishes:
+      - {name: chicken shawarma, variants: [shawarma, shwarma, chicken shwarma, shawerma, chicken shawarma wrap], diet: non_veg, meal: late, price: [10, 14], prep: 10, tags: [wrap, chicken, garlic sauce, spiced]}
+      - {name: beef shawarma, variants: [beef shwarma, lamb shawarma], diet: non_veg, meal: late, price: [11, 15], prep: 10, tags: [wrap, beef, spiced]}
+      - {name: shawarma plate, variants: [shawarma platter], diet: non_veg, meal: main, price: [14, 18], prep: 12, tags: [rice, chicken, salad, garlic sauce], gf: true}
+      - {name: chicken over rice, variants: [halal chicken over rice, halal cart chicken, chicken and rice platter], diet: non_veg, meal: late, price: [9, 12], prep: 8, tags: [rice, chicken, white sauce, spicy, cheap], gf: true}
+      - {name: lamb kebab, variants: [shish kebab, lamb shish kebab, kabob, kabab], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [kebab, grilled, lamb, skewers], gf: true}
+      - {name: chicken kebab, variants: [chicken kabob, chicken shish tawook, shish taouk], diet: non_veg, meal: main, price: [13, 18], prep: 15, tags: [kebab, grilled, chicken, garlic], gf: true}
+      - {name: adana kebab, variants: [adana kabob], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [kebab, minced lamb, spicy], gf: true}
+      - {name: doner kebab, variants: [doner, donner kebab, doner wrap], diet: non_veg, meal: late, price: [10, 13], prep: 8, tags: [wrap, meat, late night]}
+      - {name: falafel wrap, variants: [falafel sandwich, falafel pita], diet: vegan, meal: lunch, price: [8, 11], prep: 8, tags: [wrap, chickpeas, fried, tahini]}
+      - {name: tabbouleh, variants: [tabouli, tabbouli, taboule], diet: vegan, meal: side, price: [6, 9], prep: 5, tags: [salad, parsley, bulgur, fresh, healthy, light]}
+      - {name: fattoush, variants: [fattoush salad], diet: vegan, meal: lunch, price: [8, 11], prep: 8, tags: [salad, pita chips, sumac, fresh, light]}
+      - {name: baba ganoush, variants: [baba ghanoush, baba ghanouj, eggplant dip], diet: vegan, meal: snack, price: [7, 10], prep: 5, tags: [eggplant, dip, smoky, tahini], gf: true}
+      - {name: lentil soup, variants: [red lentil soup, mercimek], diet: vegan, meal: lunch, price: [5, 8], prep: 8, tags: [soup, lentils, warm, healthy, comfort], gf: true}
+      - {name: lahmacun, variants: [turkish pizza], diet: non_veg, meal: snack, price: [8, 11], prep: 12, tags: [flatbread, minced meat, thin]}
+      - {name: kunafa, variants: [knafeh, kanafeh, kunefe], diet: veg, meal: dessert, price: [7, 10], prep: 10, tags: [dessert, cheese, syrup, sweet, warm]}
+      - {name: koobideh, variants: [kabob koobideh, kubideh], diet: non_veg, meal: main, price: [15, 20], prep: 15, tags: [kebab, persian, minced beef, saffron rice], gf: true}
+  french:
+    aliases: [french, french food, bistro, brasserie]
+    yelp_categories: [French, Brasseries, Creperies]
+    dishes:
+      - {name: croque monsieur, variants: [croque madame], diet: non_veg, meal: brunch, price: [12, 16], prep: 12, tags: [sandwich, ham, cheese, bechamel, warm]}
+      - {name: french onion soup, variants: [onion soup, soupe a l oignon], diet: veg, meal: lunch, price: [9, 13], prep: 12, tags: [soup, onion, cheese, warm, comfort]}
+      - {name: steak frites, variants: [steak and fries], diet: non_veg, meal: dinner, price: [26, 36], prep: 20, tags: [steak, fries, bistro]}
+      - {name: coq au vin, variants: [chicken in wine], diet: non_veg, meal: dinner, price: [24, 32], prep: 25, tags: [chicken, braised, wine, warm, comfort], gf: true}
+      - {name: beef bourguignon, variants: [boeuf bourguignon, beef burgundy], diet: non_veg, meal: dinner, price: [26, 34], prep: 25, tags: [beef, stew, wine, warm, rich], gf: true}
+      - {name: quiche lorraine, variants: [quiche], diet: non_veg, meal: brunch, price: [10, 14], prep: 10, tags: [egg, bacon, pastry, cheese]}
+      - {name: ratatouille, variants: [provencal vegetables], diet: vegan, meal: main, price: [16, 22], prep: 20, tags: [vegetables, eggplant, zucchini, stew, healthy], gf: true}
+      - {name: salade nicoise, variants: [nicoise salad], diet: non_veg, meal: lunch, price: [14, 18], prep: 10, tags: [salad, tuna, egg, olives, light], gf: true}
+      - {name: moules frites, variants: [mussels and fries, steamed mussels], diet: non_veg, meal: dinner, price: [22, 30], prep: 15, tags: [mussels, fries, wine, seafood]}
+      - {name: crepes, variants: [crepe, nutella crepe, sweet crepe], diet: veg, meal: brunch, price: [8, 12], prep: 10, tags: [crepe, sweet, thin pancake]}
+      - {name: savory crepe, variants: [galette, buckwheat crepe, ham and cheese crepe], diet: non_veg, meal: brunch, price: [11, 15], prep: 12, tags: [crepe, ham, cheese, egg], gf: true}
+      - {name: creme brulee, variants: [creme brulee custard], diet: veg, meal: dessert, price: [8, 11], prep: 5, tags: [dessert, custard, caramelized, sweet], gf: true}
+      - {name: croissant, variants: [butter croissant, croissants], diet: veg, meal: breakfast, price: [3, 5], prep: 3, tags: [pastry, buttery, flaky, breakfast]}
+      - {name: macarons, variants: [macaron, french macarons], diet: veg, meal: dessert, price: [2, 3], prep: 2, tags: [dessert, almond, sweet, colorful], gf: true}
+  spanish:
+    aliases: [spanish, tapas, spanish food]
+    yelp_categories: [Spanish, Tapas Bars, Tapas/Small Plates, Basque]
+    dishes:
+      - {name: paella, variants: [seafood paella, paella valenciana, paella mixta], diet: non_veg, meal: dinner, price: [22, 34], prep: 35, tags: [rice, saffron, seafood, sharing], gf: true}
+      - {name: patatas bravas, variants: [bravas, papas bravas], diet: vegan, meal: snack, price: [7, 10], prep: 10, tags: [potato, fried, spicy sauce, tapas], gf: true}
+      - {name: gambas al ajillo, variants: [garlic shrimp, gambas], diet: non_veg, meal: snack, price: [11, 15], prep: 10, tags: [shrimp, garlic, olive oil, tapas], gf: true}
+      - {name: tortilla espanola, variants: [spanish omelette, tortilla de patatas], diet: egg, meal: brunch, price: [8, 11], prep: 15, tags: [egg, potato, omelette, tapas], gf: true}
+      - {name: croquetas, variants: [croquettes, ham croquettes, croquetas de jamon], diet: non_veg, meal: snack, price: [8, 11], prep: 10, tags: [fried, creamy, ham, tapas]}
+      - {name: jamon iberico, variants: [iberico ham, jamon], diet: non_veg, meal: snack, price: [16, 26], prep: 3, tags: [cured ham, tapas], gf: true}
+      - {name: gazpacho, variants: [cold tomato soup], diet: vegan, meal: lunch, price: [7, 10], prep: 5, tags: [soup, cold, tomato, refreshing, light, healthy], gf: true}
+      - {name: pan con tomate, variants: [pa amb tomaquet, tomato bread], diet: vegan, meal: snack, price: [5, 8], prep: 5, tags: [bread, tomato, garlic, tapas]}
+      - {name: pulpo a la gallega, variants: [galician octopus], diet: non_veg, meal: dinner, price: [16, 22], prep: 15, tags: [octopus, paprika, potatoes], gf: true}
+      - {name: churros con chocolate, variants: [spanish churros], diet: veg, meal: dessert, price: [6, 9], prep: 8, tags: [dessert, fried, chocolate, sweet]}
+  caribbean:
+    aliases: [caribbean, jamaican, cuban, puerto rican, island food]
+    yelp_categories: [Caribbean, Cuban, Puerto Rican, Jamaican, Haitian, Trinidadian, Dominican]
+    dishes:
+      - {name: jerk chicken, variants: [jamaican jerk chicken, jerk], diet: non_veg, meal: main, price: [12, 17], prep: 20, tags: [chicken, spicy, smoky, allspice], gf: true}
+      - {name: oxtail stew, variants: [oxtail, braised oxtail, curry oxtail], diet: non_veg, meal: dinner, price: [18, 25], prep: 25, tags: [stew, beef, rich, warm, comfort], gf: true}
+      - {name: curry goat, variants: [goat curry, curried goat], diet: non_veg, meal: main, price: [15, 20], prep: 25, tags: [curry, goat, spicy, warm], gf: true}
+      - {name: rice and peas, variants: [rice n peas], diet: vegan, meal: side, price: [4, 6], prep: 5, tags: [rice, kidney beans, coconut], gf: true}
+      - {name: fried plantains, variants: [plantains, maduros, tostones], diet: vegan, meal: side, price: [4, 7], prep: 8, tags: [plantain, fried, sweet], gf: true}
+      - {name: cuban sandwich, variants: [cubano, cuban], diet: non_veg, meal: lunch, price: [10, 14], prep: 10, tags: [sandwich, pork, ham, pickles, pressed]}
+      - {name: ropa vieja, variants: [shredded beef cuban], diet: non_veg, meal: main, price: [15, 20], prep: 20, tags: [beef, shredded, tomato, stew], gf: true}
+      - {name: mofongo, variants: [mofongo with shrimp], diet: non_veg, meal: main, price: [14, 20], prep: 20, tags: [plantain, mashed, garlic], gf: true}
+      - {name: beef patty, variants: [jamaican patty, jamaican beef patty], diet: non_veg, meal: snack, price: [3, 5], prep: 5, tags: [pastry, beef, spicy, quick]}
+      - {name: doubles, variants: [trini doubles], diet: vegan, meal: breakfast, price: [4, 6], prep: 8, tags: [chickpeas, fried bread, street food, spicy]}
+  cajun_creole:
+    aliases: [cajun, creole, louisiana, new orleans food, nola]
+    yelp_categories: [Cajun/Creole]
+    dishes:
+      - {name: gumbo, variants: [seafood gumbo, chicken and sausage gumbo], diet: non_veg, meal: main, price: [12, 18], prep: 15, tags: [stew, okra, sausage, warm, comfort]}
+      - {name: jambalaya, variants: [chicken jambalaya, creole jambalaya], diet: non_veg, meal: main, price: [14, 19], prep: 20, tags: [rice, sausage, spicy, cajun], gf: true}
+      - {name: crawfish etouffee, variants: [etouffee, shrimp etouffee], diet: non_veg, meal: dinner, price: [17, 24], prep: 20, tags: [crawfish, roux, rice, rich]}
+      - {name: shrimp po boy, variants: [po boy, po boy sandwich, oyster po boy, poboy], diet: non_veg, meal: lunch, price: [12, 16], prep: 12, tags: [sandwich, fried shrimp, french bread]}
+      - {name: red beans and rice, variants: [red beans n rice], diet: non_veg, meal: lunch, price: [9, 13], prep: 10, tags: [beans, rice, sausage, comfort], gf: true}
+      - {name: boiled crawfish, variants: [crawfish boil, crawfish], diet: non_veg, meal: dinner, price: [18, 30], prep: 25, tags: [crawfish, spicy, boil, sharing], gf: true}
+      - {name: blackened catfish, variants: [blackened fish, blackened redfish], diet: non_veg, meal: dinner, price: [18, 24], prep: 15, tags: [fish, spicy, cajun], gf: true}
+      - {name: beignets, variants: [beignet], diet: veg, meal: breakfast, price: [4, 7], prep: 8, tags: [dessert, fried, powdered sugar, sweet]}
+      - {name: muffuletta, variants: [muffaletta, muffuletta sandwich], diet: non_veg, meal: lunch, price: [12, 16], prep: 8, tags: [sandwich, olive salad, salami]}
+      - {name: bread pudding, variants: [bread pudding with rum sauce], diet: veg, meal: dessert, price: [6, 9], prep: 5, tags: [dessert, warm, sweet, comfort]}
+  ethiopian:
+    aliases: [ethiopian, eritrean, african, ethiopian food]
+    yelp_categories: [Ethiopian, African, Eritrean]
+    dishes:
+      - {name: doro wat, variants: [doro wot, doro wet], diet: non_veg, meal: main, price: [15, 19], prep: 25, tags: [stew, chicken, berbere, spicy, egg]}
+      - {name: misir wat, variants: [misir wot, red lentil wat, misir], diet: vegan, meal: main, price: [12, 15], prep: 20, tags: [stew, lentils, berbere, spicy, healthy], gf: true}
+      - {name: vegetarian combo, variants: [veggie combo, beyaynetu, vegan platter], diet: vegan, meal: main, price: [15, 20], prep: 20, tags: [platter, lentils, greens, injera, sharing, healthy]}
+      - {name: tibs, variants: [beef tibs, lamb tibs, derek tibs], diet: non_veg, meal: main, price: [16, 21], prep: 20, tags: [sauteed, beef, rosemary, spicy], gf: true}
+      - {name: kitfo, variants: [ketfo], diet: non_veg, meal: dinner, price: [16, 21], prep: 15, tags: [minced beef, spiced butter, raw], gf: true}
+      - {name: shiro, variants: [shiro wat, shiro wot], diet: vegan, meal: main, price: [12, 15], prep: 20, tags: [stew, chickpea flour, comfort, warm], gf: true}
+      - {name: injera, variants: [ethiopian flatbread], diet: vegan, meal: side, price: [2, 4], prep: 3, tags: [bread, teff, sour], gf: true}
+      - {name: gomen, variants: [ethiopian collard greens], diet: vegan, meal: side, price: [5, 7], prep: 10, tags: [greens, garlic, healthy], gf: true}
+  breakfast_brunch:
+    aliases: [breakfast, brunch, breakfast food, brunch spot, all day breakfast]
+    yelp_categories: [Breakfast & Brunch, Diners, Waffles, Pancakes]
+    dishes:
+      - {name: buttermilk pancakes, variants: [pancakes, pancake stack, short stack], diet: veg, meal: breakfast, price: [9, 13], prep: 12, tags: [pancakes, maple syrup, sweet, breakfast, comfort]}
+      - {name: blueberry pancakes, variants: [blueberry pancake], diet: veg, meal: breakfast, price: [10, 14], prep: 12, tags: [pancakes, blueberry, sweet, breakfast]}
+      - {name: belgian waffle, variants: [waffles, waffle], diet: veg, meal: breakfast, price: [9, 13], prep: 12, tags: [waffle, sweet, breakfast, berries]}
+      - {name: french toast, variants: [brioche french toast, stuffed french toast], diet: veg, meal: breakfast, price: [10, 14], prep: 12, tags: [toast, sweet, cinnamon, breakfast]}
+      - {name: eggs benedict, variants: [eggs benny, benedict], diet: non_veg, meal: brunch, price: [13, 17], prep: 12, tags: [eggs, hollandaise, ham, english muffin, brunch]}
+      - {name: avocado toast, variants: [avo toast], diet: veg, meal: brunch, price: [10, 14], prep: 8, tags: [toast, avocado, healthy, fresh, light]}
+      - {name: breakfast burrito, variants: [morning burrito], diet: non_veg, meal: breakfast, price: [9, 13], prep: 10, tags: [burrito, eggs, potato, bacon, breakfast]}
+      - {name: bacon egg and cheese, variants: [bacon egg cheese sandwich, bec, bacon egg and cheese sandwich], diet: non_veg, meal: breakfast, price: [6, 9], prep: 6, tags: [sandwich, eggs, bacon, cheese, breakfast, quick]}
+      - {name: veggie omelette, variants: [vegetable omelet, western omelette, omelette, omelet], diet: egg, meal: breakfast, price: [10, 14], prep: 10, tags: [eggs, vegetables, breakfast], gf: true}
+      - {name: full breakfast, variants: [big breakfast, two egg breakfast, all american breakfast], diet: non_veg, meal: breakfast, price: [11, 15], prep: 12, tags: [eggs, bacon, toast, hash browns, breakfast, hearty]}
+      - {name: hash browns, variants: [home fries, hashbrowns], diet: vegan, meal: breakfast, price: [3, 5], prep: 8, tags: [potato, crispy, side, breakfast], gf: true}
+      - {name: acai bowl, variants: [acai, açaí bowl], diet: vegan, meal: breakfast, price: [10, 14], prep: 5, tags: [bowl, berries, granola, healthy, fresh, cold], gf: true}
+      - {name: yogurt parfait, variants: [parfait, granola parfait], diet: veg, meal: breakfast, price: [6, 9], prep: 3, tags: [yogurt, granola, berries, healthy, light], gf: true}
+      - {name: oatmeal, variants: [steel cut oats, porridge], diet: vegan, meal: breakfast, price: [6, 9], prep: 5, tags: [oats, healthy, warm, breakfast]}
+      - {name: shakshuka, variants: [shakshouka], diet: egg, meal: brunch, price: [12, 16], prep: 15, tags: [eggs, tomato, spicy, brunch, warm], gf: true}
+  cafe:
+    aliases: [cafe, coffee shop, coffee, tea house, coffeehouse]
+    yelp_categories: [Cafes, Coffee & Tea, Coffee Roasteries, Tea Rooms, Bubble Tea]
+    dishes:
+      - {name: latte, variants: [cafe latte, caffe latte], diet: veg, meal: drink, price: [4, 6], prep: 4, tags: [drink, coffee, milk, warm], gf: true}
+      - {name: cappuccino, variants: [capuccino], diet: veg, meal: drink, price: [4, 6], prep: 4, tags: [drink, coffee, foam, warm], gf: true}
+      - {name: americano, variants: [cafe americano, black coffee], diet: vegan, meal: drink, price: [3, 5], prep: 3, tags: [drink, coffee, warm], gf: true}
+      - {name: cold brew, variants: [cold brew coffee, iced coffee], diet: vegan, meal: drink, price: [4, 6], prep: 2, tags: [drink, coffee, cold], gf: true}
+      - {name: matcha latte, variants: [green tea latte], diet: veg, meal: drink, price: [5, 7], prep: 4, tags: [drink, matcha, milk], gf: true}
+      - {name: hot chocolate, variants: [hot cocoa], diet: veg, meal: drink, price: [4, 6], prep: 4, tags: [drink, chocolate, warm, sweet, comfort], gf: true}
+      - {name: bubble tea, variants: [boba, boba tea, milk tea, pearl milk tea], diet: veg, meal: drink, price: [5, 7], prep: 5, tags: [drink, tapioca, sweet, cold], gf: true}
+      - {name: blueberry muffin, variants: [muffin, muffins], diet: veg, meal: breakfast, price: [3, 5], prep: 2, tags: [pastry, blueberry, sweet, breakfast]}
+      - {name: bagel with cream cheese, variants: [bagel, everything bagel, bagel and schmear], diet: veg, meal: breakfast, price: [3, 6], prep: 3, tags: [bagel, cream cheese, breakfast]}
+      - {name: lox bagel, variants: [bagel and lox, smoked salmon bagel], diet: non_veg, meal: breakfast, price: [10, 14], prep: 5, tags: [bagel, smoked salmon, cream cheese, capers]}
+      - {name: chai latte, variants: [dirty chai], diet: veg, meal: drink, price: [4, 6], prep: 4, tags: [drink, tea, spiced, milk, warm], gf: true}
+      - {name: smoothie, variants: [fruit smoothie, berry smoothie, green smoothie], diet: vegan, meal: drink, price: [6, 9], prep: 4, tags: [drink, fruit, healthy, cold], gf: true}
+      - {name: cinnamon roll, variants: [cinnamon bun], diet: veg, meal: breakfast, price: [4, 6], prep: 3, tags: [pastry, cinnamon, sweet, warm]}
+  bakery_desserts:
+    aliases: [bakery, dessert, desserts, sweets, pastry shop, donuts]
+    yelp_categories: [Bakeries, Desserts, Donuts, Cupcakes, Patisserie/Cake Shop, Creperies, Chocolatiers & Shops]
+    dishes:
+      - {name: chocolate chip cookie, variants: [cookie, cookies, chocolate chip cookies], diet: veg, meal: dessert, price: [2, 4], prep: 2, tags: [dessert, cookie, chocolate, sweet]}
+      - {name: chocolate cake, variants: [chocolate layer cake, fudge cake], diet: veg, meal: dessert, price: [6, 9], prep: 3, tags: [dessert, cake, chocolate, sweet, rich]}
+      - {name: cheesecake, variants: [new york cheesecake, ny cheesecake], diet: veg, meal: dessert, price: [6, 9], prep: 3, tags: [dessert, cheesecake, creamy, sweet]}
+      - {name: red velvet cupcake, variants: [cupcake, cupcakes, red velvet], diet: veg, meal: dessert, price: [3, 5], prep: 2, tags: [dessert, cupcake, cream cheese frosting, sweet]}
+      - {name: glazed donut, variants: [donut, doughnut, donuts, glazed doughnut], diet: veg, meal: breakfast, price: [1, 3], prep: 2, tags: [dessert, fried, sweet, breakfast]}
+      - {name: boston cream donut, variants: [boston kreme], diet: veg, meal: breakfast, price: [2, 3], prep: 2, tags: [donut, custard, chocolate, sweet]}
+      - {name: brownie, variants: [fudge brownie, brownies], diet: veg, meal: dessert, price: [3, 5], prep: 2, tags: [dessert, chocolate, fudgy, sweet]}
+      - {name: pain au chocolat, variants: [chocolate croissant], diet: veg, meal: breakfast, price: [4, 5], prep: 2, tags: [pastry, chocolate, flaky, breakfast]}
+      - {name: fruit tart, variants: [berry tart, tart], diet: veg, meal: dessert, price: [5, 8], prep: 2, tags: [dessert, fruit, pastry cream, fresh]}
+      - {name: key lime pie, variants: [lime pie], diet: veg, meal: dessert, price: [5, 8], prep: 2, tags: [dessert, citrus, tangy, sweet]}
+      - {name: carrot cake, variants: [carrot cake slice], diet: veg, meal: dessert, price: [5, 8], prep: 2, tags: [dessert, cake, cream cheese, spiced]}
+      - {name: sourdough loaf, variants: [sourdough, sourdough bread], diet: vegan, meal: side, price: [6, 9], prep: 2, tags: [bread, sourdough, fresh]}
+      - {name: vegan brownie, variants: [vegan chocolate brownie], diet: vegan, meal: dessert, price: [4, 6], prep: 2, tags: [dessert, vegan, chocolate, sweet]}
+      - {name: gluten free cake, variants: [flourless chocolate cake], diet: veg, meal: dessert, price: [6, 9], prep: 2, tags: [dessert, chocolate, rich], gf: true}
+  ice_cream:
+    aliases: [ice cream, gelato, frozen yogurt, froyo, frozen dessert]
+    yelp_categories: [Ice Cream & Frozen Yogurt, Gelato, Shaved Ice]
+    dishes:
+      - {name: vanilla ice cream, variants: [ice cream, vanilla scoop], diet: veg, meal: dessert, price: [4, 6], prep: 2, tags: [dessert, ice cream, cold, sweet], gf: true}
+      - {name: chocolate ice cream, variants: [chocolate scoop], diet: veg, meal: dessert, price: [4, 6], prep: 2, tags: [dessert, ice cream, chocolate, cold, sweet], gf: true}
+      - {name: ice cream sundae, variants: [sundae, hot fudge sundae, banana split], diet: veg, meal: dessert, price: [6, 9], prep: 4, tags: [dessert, ice cream, fudge, sweet, sharing]}
+      - {name: frozen yogurt, variants: [froyo, fro yo], diet: veg, meal: dessert, price: [5, 8], prep: 3, tags: [dessert, yogurt, cold, light], gf: true}
+      - {name: vegan sorbet, variants: [sorbet, mango sorbet, dairy free ice cream], diet: vegan, meal: dessert, price: [4, 6], prep: 2, tags: [dessert, fruit, cold, vegan, light], gf: true}
+      - {name: ice cream sandwich, variants: [cookie ice cream sandwich], diet: veg, meal: dessert, price: [5, 7], prep: 2, tags: [dessert, cookie, ice cream, sweet]}
+      - {name: kulfi, variants: [malai kulfi, pista kulfi], diet: veg, meal: dessert, price: [4, 6], prep: 2, tags: [dessert, indian ice cream, pistachio, cold], gf: true}
+  seafood:
+    aliases: [seafood, fish, fish and chips, oysters]
+    yelp_categories: [Seafood, Fish & Chips, Live/Raw Food, Poke]
+    dishes:
+      - {name: fish and chips, variants: [fish n chips, fish & chips, fish and fries], diet: non_veg, meal: main, price: [14, 19], prep: 15, tags: [fried fish, fries, crispy, comfort]}
+      - {name: lobster roll, variants: [maine lobster roll, connecticut lobster roll], diet: non_veg, meal: lunch, price: [24, 34], prep: 10, tags: [lobster, sandwich, buttery]}
+      - {name: grilled salmon, variants: [salmon, salmon fillet, cedar plank salmon], diet: non_veg, meal: dinner, price: [20, 28], prep: 20, tags: [fish, grilled, healthy, omega], gf: true}
+      - {name: fried shrimp, variants: [shrimp basket, popcorn shrimp], diet: non_veg, meal: main, price: [14, 19], prep: 12, tags: [shrimp, fried, crispy]}
+      - {name: oysters on the half shell, variants: [raw oysters, oysters, dozen oysters], diet: non_veg, meal: dinner, price: [18, 32], prep: 10, tags: [oysters, raw, fresh, briny], gf: true}
+      - {name: crab cakes, variants: [crab cake, maryland crab cake], diet: non_veg, meal: dinner, price: [18, 26], prep: 15, tags: [crab, pan fried, remoulade]}
+      - {name: seafood boil, variants: [cajun seafood boil, shrimp boil], diet: non_veg, meal: dinner, price: [25, 40], prep: 25, tags: [shrimp, crab, corn, spicy, sharing], gf: true}
+      - {name: poke bowl, variants: [poke, ahi poke, salmon poke bowl], diet: non_veg, meal: lunch, price: [13, 17], prep: 8, tags: [bowl, raw fish, rice, healthy, fresh, light], gf: true}
+      - {name: fish sandwich, variants: [fried fish sandwich, filet o fish], diet: non_veg, meal: lunch, price: [10, 14], prep: 10, tags: [sandwich, fried fish, tartar sauce]}
+      - {name: shrimp cocktail, variants: [prawn cocktail], diet: non_veg, meal: snack, price: [12, 16], prep: 5, tags: [shrimp, cold, cocktail sauce, light], gf: true}
+  sandwiches:
+    aliases: [sandwiches, sandwich shop, deli, subs, hoagies]
+    yelp_categories: [Sandwiches, Delis, Cheesesteaks, Hot Dogs]
+    dishes:
+      - {name: philly cheesesteak, variants: [cheesesteak, cheese steak, philly cheese steak, steak sandwich], diet: non_veg, meal: lunch, price: [11, 15], prep: 10, tags: [sandwich, steak, cheese, onions, philly]}
+      - {name: chicken cheesesteak, variants: [chicken cheese steak], diet: non_veg, meal: lunch, price: [11, 15], prep: 10, tags: [sandwich, chicken, cheese]}
+      - {name: italian hoagie, variants: [hoagie, italian sub, italian hero, sub sandwich], diet: non_veg, meal: lunch, price: [10, 14], prep: 8, tags: [sandwich, salami, ham, provolone]}
+      - {name: turkey club, variants: [club sandwich, turkey sandwich], diet: non_veg, meal: lunch, price: [11, 14], prep: 8, tags: [sandwich, turkey, bacon, triple decker]}
+      - {name: pastrami on rye, variants: [pastrami sandwich, hot pastrami], diet: non_veg, meal: lunch, price: [14, 19], prep: 8, tags: [sandwich, pastrami, rye, deli]}
+      - {name: reuben sandwich, variants: [reuben, corned beef reuben], diet: non_veg, meal: lunch, price: [13, 17], prep: 10, tags: [sandwich, corned beef, sauerkraut, rye]}
+      - {name: blt, variants: [blt sandwich, bacon lettuce tomato], diet: non_veg, meal: lunch, price: [8, 11], prep: 6, tags: [sandwich, bacon, tomato, lettuce]}
+      - {name: tuna melt, variants: [tuna sandwich], diet: non_veg, meal: lunch, price: [9, 12], prep: 8, tags: [sandwich, tuna, melted cheese]}
+      - {name: caprese sandwich, variants: [mozzarella sandwich, caprese panini], diet: veg, meal: lunch, price: [10, 13], prep: 8, tags: [sandwich, mozzarella, tomato, basil, panini]}
+      - {name: roast pork sandwich, variants: [roast pork italian, pork and broccoli rabe], diet: non_veg, meal: lunch, price: [11, 15], prep: 8, tags: [sandwich, roast pork, provolone, philly]}
+      - {name: meatball sub, variants: [meatball sandwich, meatball parm sub], diet: non_veg, meal: lunch, price: [10, 14], prep: 10, tags: [sandwich, meatballs, marinara, cheese]}
+      - {name: veggie wrap, variants: [hummus wrap, vegetable wrap], diet: vegan, meal: lunch, price: [9, 12], prep: 6, tags: [wrap, vegetables, hummus, healthy, light]}
+  salads_healthy:
+    aliases: [healthy, salads, salad bar, healthy food, clean eating, juice bar]
+    yelp_categories: [Salad, Juice Bars & Smoothies, Acai Bowls, Health Markets]
+    dishes:
+      - {name: quinoa bowl, variants: [quinoa salad, grain bowl], diet: vegan, meal: lunch, price: [12, 15], prep: 8, tags: [quinoa, vegetables, healthy, light, fresh], gf: true}
+      - {name: kale salad, variants: [kale caesar, kale and quinoa salad], diet: veg, meal: lunch, price: [11, 14], prep: 6, tags: [salad, kale, healthy, light], gf: true}
+      - {name: chicken salad bowl, variants: [grilled chicken salad, protein bowl], diet: non_veg, meal: lunch, price: [12, 16], prep: 8, tags: [salad, grilled chicken, healthy, protein], gf: true}
+      - {name: buddha bowl, variants: [veggie bowl, macro bowl], diet: vegan, meal: lunch, price: [12, 15], prep: 8, tags: [bowl, vegetables, tofu, healthy, light], gf: true}
+      - {name: green juice, variants: [cold pressed juice, detox juice], diet: vegan, meal: drink, price: [7, 10], prep: 3, tags: [drink, kale, celery, healthy, cold], gf: true}
+      - {name: protein smoothie, variants: [protein shake], diet: veg, meal: drink, price: [7, 10], prep: 3, tags: [drink, protein, healthy, cold], gf: true}
+      - {name: salmon salad, variants: [grilled salmon salad], diet: non_veg, meal: lunch, price: [15, 19], prep: 10, tags: [salad, salmon, healthy, light], gf: true}
+      - {name: lentil salad, variants: [french lentil salad], diet: vegan, meal: lunch, price: [10, 13], prep: 6, tags: [salad, lentils, healthy, protein], gf: true}
+      - {name: zucchini noodles, variants: [zoodles, courgette noodles], diet: vegan, meal: dinner, price: [12, 15], prep: 10, tags: [low carb, zucchini, healthy, light], gf: true}
+  vegan:
+    aliases: [vegan, vegetarian, plant based, veggie]
+    yelp_categories: [Vegan, Vegetarian, Raw Food]
+    dishes:
+      - {name: vegan burger, variants: [plant burger, beyond burger vegan], diet: vegan, meal: main, price: [13, 17], prep: 12, tags: [burger, plant based, vegan]}
+      - {name: tofu scramble, variants: [vegan scramble, scrambled tofu], diet: vegan, meal: breakfast, price: [10, 13], prep: 10, tags: [tofu, breakfast, vegan, healthy], gf: true}
+      - {name: vegan mac and cheese, variants: [vegan mac, dairy free mac and cheese], diet: vegan, meal: main, price: [10, 14], prep: 12, tags: [pasta, cashew cheese, comfort, vegan]}
+      - {name: cauliflower wings, variants: [buffalo cauliflower, cauliflower bites], diet: vegan, meal: snack, price: [9, 12], prep: 15, tags: [cauliflower, spicy, crispy, vegan]}
+      - {name: jackfruit tacos, variants: [jackfruit carnitas, vegan tacos jackfruit], diet: vegan, meal: main, price: [11, 14], prep: 12, tags: [tacos, jackfruit, vegan], gf: true}
+      - {name: seitan wings, variants: [vegan wings], diet: vegan, meal: snack, price: [10, 13], prep: 15, tags: [seitan, spicy, vegan]}
+      - {name: tempeh bowl, variants: [tempeh rice bowl], diet: vegan, meal: lunch, price: [12, 15], prep: 10, tags: [tempeh, rice, vegetables, healthy], gf: true}
+      - {name: vegan chili, variants: [three bean chili, veggie chili], diet: vegan, meal: main, price: [9, 12], prep: 10, tags: [chili, beans, spicy, warm, comfort], gf: true}
+      - {name: vegan cheesecake, variants: [raw cheesecake, cashew cheesecake], diet: vegan, meal: dessert, price: [7, 10], prep: 3, tags: [dessert, cashew, sweet, vegan], gf: true}
